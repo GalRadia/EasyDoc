@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.easydoc.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.example.easydoc.ui.dashboard.DashboardFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+    <navigation android:id="@+id/nested_appointments"
+        app:startDestination="@id/navigation_appointments">
+        <fragment
+            android:id="@+id/appointmentNextFragment"
+            android:name="com.example.easydoc.ui.appointments.AppointmentNextFragment"
+            android:label="fragment_appointment_next"
+            tools:layout="@layout/fragment_appointment_next">
+            <action
+                android:id="@+id/action_appointmentNextFragment_to_navigation_appointments"
+                app:destination="@id/navigation_appointments" >
+                <argument
+                    android:name="appointmentDate"
+                    android:defaultValue='""'
+                    app:nullable="true" />
+                <argument
+                    android:name="appointmentTime"
+                    android:defaultValue='""'
+                    app:nullable="true" />
+            </action>
+        </fragment>
+        <fragment
+            android:id="@+id/navigation_appointments"
+            android:name="com.example.easydoc.ui.appointments.AppointmentsFragment"
+            android:label="@string/title_appointments"
+            tools:layout="@layout/fragment_appointments" >
+            <action
+                android:id="@+id/action_navigation_appointments_to_appointmentNextFragment"
+                app:destination="@id/appointmentNextFragment" />
+            <argument
+                android:name="appointmentDate"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="appointmentTime"
+                app:argType="string"
+                app:nullable="true" />
+        </fragment>
+    </navigation>
+
+</navigation>
