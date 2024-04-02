@@ -52,37 +52,27 @@ public class AppointmentNextFragment extends Fragment {
         binding = FragmentAppointmentNextBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         MaterialButton button = binding.finishB;
-        Slider slider=binding.seekBar;
-        TextInputEditText message=binding.editMessage;
+        Slider slider = binding.seekBar;
+        TextInputEditText message = binding.editMessage;
 //        TextInputEditText date= appointmentsBinding.appointmentDate;
 //        TextInputEditText time= appointmentsBinding.appointmentTime;
-        Bundle saveInstance= getArguments();
-        String t= saveInstance.getString("appointmentTime");
-        int hour=Integer.parseInt(t.split(":")[0]);
-        int minute= Integer.parseInt(t.split(":")[1]);
-        Calendar calendar=Calendar.getInstance();
-        Date d;
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        try {
-            d = sdf.parse(getArguments().getString("appointmentDate"));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        assert d != null;
-        calendar.setTime(d);
+        Bundle saveInstance = getArguments();
+        String t = saveInstance.getString("appointmentTime");
+        String d = saveInstance.getString("appointmentDate");
+
 
         mAuth = FirebaseAuth.getInstance();
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         FirebaseUser user = mAuth.getCurrentUser();
         DatabaseReference userRef = mDatabase.child("users").child(user.getUid());
         button.setOnClickListener(view -> {
-            Appointment appointment = new Appointment(calendar, new Timepoint(hour,minute), message.getText().toString());
+            Appointment appointment = new Appointment( d, t, message.getText().toString());
             userRef.child("appointmentsID").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     List<String> appointmentsID = new ArrayList<>();
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        if(postSnapshot.exists())
+                        if (postSnapshot.exists())
                             appointmentsID.add(postSnapshot.getValue().toString());
                     }
                     appointmentsID.add(appointment.getId());
@@ -99,7 +89,6 @@ public class AppointmentNextFragment extends Fragment {
             mDatabase.child("appointments").child(appointment.getId()).setValue(appointment);
             Navigation.findNavController(root).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);
         });
-
 
 
         // Inflate the layout for this fragment

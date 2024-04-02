@@ -6,6 +6,7 @@ import android.icu.util.Calendar;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -95,7 +96,12 @@ public class FirebaseUIActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
-            this::onSignInResult
+            new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
+                @Override
+                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
+                    onSignInResult(result);
+                }
+            }
     );
 
     // [END auth_fui_create_launcher]

@@ -1,5 +1,8 @@
 package com.example.easydoc.ui.appointments;
 
+import static com.example.easydoc.Utils.Helper.stringToCalendar;
+
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import com.example.easydoc.Callbacks.TimepointCallback;
 import com.example.easydoc.R;
 import com.example.easydoc.databinding.FragmentAppointmentsBinding;
 import com.google.android.material.textfield.TextInputEditText;
@@ -26,8 +30,6 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class AppointmentsFragment extends Fragment {
@@ -42,8 +44,6 @@ public class AppointmentsFragment extends Fragment {
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         Button nextButton = binding.buttonNext;
-
-
         DatePickerDialog dpd = DatePickerDialog.newInstance(
                 (view, year, monthOfYear, dayOfMonth) -> {
                     // Handle the date
@@ -52,12 +52,7 @@ public class AppointmentsFragment extends Fragment {
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
-//        Calendar[] days = new Calendar[3];
-//        for (int i = 0; i < 3; i++) {
-//            days[i] = Calendar.getInstance();
-//            days[i].add(Calendar.DAY_OF_MONTH, i);
-//        }
-//        dpd.setDisabledDays(days);
+
         TimePickerDialog tpd = TimePickerDialog.newInstance(
                 (view, hourOfDay, minute, second) -> {
                     // Handle the time
@@ -67,11 +62,6 @@ public class AppointmentsFragment extends Fragment {
                 true
         );
         tpd.setTimeInterval(1, 30);
-        Timepoint[] timepoint = new Timepoint[3];
-        timepoint[0] = new Timepoint(19);
-        timepoint[1] = new Timepoint(19, 30);
-        timepoint[2] = new Timepoint(21);
-        tpd.setDisabledTimes(timepoint);
         final TextInputEditText dateLayout = binding.appointmentDate;
         final TextInputEditText timeLayout = binding.appointmentTime;
         dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
@@ -94,11 +84,28 @@ public class AppointmentsFragment extends Fragment {
 
             dateLayout.setOnClickListener(v -> dpd.show(getParentFragmentManager(), "Datepickerdialog"));
             timeLayout.setOnClickListener(view -> {
-                Calendar c = Calendar.getInstance();
-                c.setTime(new Date(1712696400000L));
-                List<Timepoint> disabledTimes = getDisabledTimeFromDate(c);
-                tpd.setDisabledTimes(disabledTimes.toArray(new Timepoint[disabledTimes.size()]));
-                tpd.show(getParentFragmentManager(), "Timepickerdialog");
+                String date = dateLayout.getText().toString();
+
+                getDisabledTimeFromDate(date, new TimepointCallback() {
+                    @Override
+                    public void onTimepointsLoaded(List<Timepoint> timepoints) {
+                        // Use the result list here
+                        List<Timepoint> arr;
+                        arr = timepoints;
+                        tpd.setDisabledTimes(arr.toArray(new Timepoint[arr.size()]));
+                        tpd.show(getParentFragmentManager(), "Timepickerdialog");
+
+
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Handle error
+                        Log.d("@@@@@@@@@@@@@@@@@@@@@@@@@@@@", "onError: ");
+                    }
+                });
+
+
             });
 
 
@@ -113,31 +120,37 @@ public class AppointmentsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-    public List<Timepoint> getDisabledTimeFromDate(Calendar day){
-        List <Timepoint> disabledTimes = new ArrayList<>();
+
+
+
+    public void getDisabledTimeFromDate(String day, TimepointCallback callback) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query query = mDatabase.child("appointments").orderByChild("date").equalTo(day.getTimeInMillis());
+        Query query = mDatabase.child("appointments").orderByChild("date").equalTo(day);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Timepoint> disabledTimes = new ArrayList<>();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    if(postSnapshot.exists()){
-                        String time = postSnapshot.child("time").getValue().toString();
-                        int hour=Integer.parseInt(time.split(":")[0]);
-                        int minute= Integer.parseInt(time.split(":")[1]);
-                        Timepoint timepoint = new Timepoint(hour,minute);
-                        disabledTimes.add(timepoint);
-
+                    if (postSnapshot.exists()) {
+                        String time = postSnapshot.child("time").getValue(String.class);
+                        if (time != null) {
+                            String[] timeParts = time.split(":");
+                            int hour = Integer.parseInt(timeParts[0]);
+                            int minute = Integer.parseInt(timeParts[1]);
+                            Timepoint timepoint = new Timepoint(hour, minute);
+                            disabledTimes.add(timepoint);
+                        }
                     }
                 }
+                callback.onTimepointsLoaded(disabledTimes);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Error", error.getMessage());
+                callback.onError(error.getMessage());
             }
         });
-        return disabledTimes;
     }
+
 }

@@ -7,31 +7,31 @@ import java.util.UUID;
 
 public class Appointment {
     private UUID id;
-    private Calendar date;
-    private Timepoint time;
+    private String date;
+    private String time;
     private String text;
 
-    public Appointment( Calendar date, Timepoint time, String text) {
+    public Appointment( String date, String time, String text) {
         this.id = UUID.randomUUID();
         this.date = date;
         this.time = time;
         this.text = text;
     }
 
-    public Calendar getDate() {
+    public String getDate() {
         return date;
     }
 
-    public Appointment setDate(Calendar date) {
+    public Appointment setDate(String date) {
         this.date = date;
         return this;
     }
 
-    public Timepoint getTime() {
+    public String getTime() {
         return time;
     }
 
-    public Appointment setTime(Timepoint time) {
+    public Appointment setTime(String time) {
         this.time = time;
         return this;
     }
