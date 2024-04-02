@@ -5,17 +5,19 @@ import com.wdullaer.materialdatetimepicker.time.Timepoint;
 import java.util.Calendar;
 import java.util.UUID;
 
-public class Appointment {
+public class Appointment implements Comparable<Appointment> {
     private UUID id;
     private String date;
     private String time;
     private String text;
+    private  String name;
 
-    public Appointment( String date, String time, String text) {
+    public Appointment( String date, String time, String text, String name) {
         this.id = UUID.randomUUID();
         this.date = date;
         this.time = time;
         this.text = text;
+        this.name = name;
     }
 
     public String getDate() {
@@ -47,5 +49,14 @@ public class Appointment {
     public Appointment setText(String text) {
         this.text = text;
         return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public int compareTo(Appointment appointment) {
+        return this.getDate().compareTo(appointment.getDate());
     }
 }

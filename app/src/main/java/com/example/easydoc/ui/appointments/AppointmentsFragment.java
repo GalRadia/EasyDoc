@@ -1,7 +1,5 @@
 package com.example.easydoc.ui.appointments;
 
-import static com.example.easydoc.Utils.Helper.stringToCalendar;
-
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
-import com.example.easydoc.Callbacks.TimepointCallback;
+import com.example.easydoc.Interfaces.FullyBookedDaysCallback;
+import com.example.easydoc.Interfaces.TimepointCallback;
 import com.example.easydoc.R;
 import com.example.easydoc.databinding.FragmentAppointmentsBinding;
 import com.google.android.material.textfield.TextInputEditText;
@@ -29,12 +28,18 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AppointmentsFragment extends Fragment {
 
     private FragmentAppointmentsBinding binding;
+    TextInputEditText dateLayout;
+    TextInputEditText timeLayout;
+    TimePickerDialog tpd;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +48,7 @@ public class AppointmentsFragment extends Fragment {
 
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        TimePickerDialog tpd = initializeTimePicker();
         Button nextButton = binding.buttonNext;
         DatePickerDialog dpd = DatePickerDialog.newInstance(
                 (view, year, monthOfYear, dayOfMonth) -> {
@@ -52,24 +58,20 @@ public class AppointmentsFragment extends Fragment {
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
+        List<String> fullyBookedDays = getAllFullyBookedDays( new FullyBookedDaysCallback() {
+            @Override
+            public void onFullyBookedDays(List<String> fullyBookedDays) {
+                // Use the result list here
+                int x=1;
 
-        TimePickerDialog tpd = TimePickerDialog.newInstance(
-                (view, hourOfDay, minute, second) -> {
-                    // Handle the time
-                },
-                Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
-                Calendar.getInstance().get(Calendar.MINUTE),
-                true
-        );
-        tpd.setTimeInterval(1, 30);
-        final TextInputEditText dateLayout = binding.appointmentDate;
-        final TextInputEditText timeLayout = binding.appointmentTime;
+            }
+        });
+
+
+        dateLayout = binding.appointmentDate;
+        timeLayout = binding.appointmentTime;
         dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
             dateLayout.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
-        });
-        tpd.setOnTimeSetListener((view, hourOfDay, minute, second) -> {
-            String min = minute > 9 ? "" + minute : "0" + minute;
-            timeLayout.setText(hourOfDay + ":" + min);
         });
 
 
@@ -94,6 +96,8 @@ public class AppointmentsFragment extends Fragment {
                         arr = timepoints;
                         tpd.setDisabledTimes(arr.toArray(new Timepoint[arr.size()]));
                         tpd.show(getParentFragmentManager(), "Timepickerdialog");
+                        tpd.onDestroy();
+                        initializeTimePicker(); //Change
 
 
                     }
@@ -115,12 +119,30 @@ public class AppointmentsFragment extends Fragment {
 
     }
 
+    private TimePickerDialog initializeTimePicker() {
+        TimePickerDialog tpd = TimePickerDialog.newInstance(
+                (view, hourOfDay, minute, second) -> {
+                    // Handle the time
+                },
+                Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                Calendar.getInstance().get(Calendar.MINUTE),
+                true
+        );
+        tpd.setTimeInterval(1, 30);
+        tpd.setMinTime(8, 0, 0);
+        tpd.setMaxTime(20, 0, 0);
+        tpd.setOnTimeSetListener((view, hourOfDay, minute, second) -> {
+            String min = minute > 9 ? "" + minute : "0" + minute;
+            timeLayout.setText(hourOfDay + ":" + min);
+        });
+        return tpd;
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
-
 
 
     public void getDisabledTimeFromDate(String day, TimepointCallback callback) {
@@ -153,4 +175,53 @@ public class AppointmentsFragment extends Fragment {
         });
     }
 
+    public List<String> getAllFullyBookedDays(final FullyBookedDaysCallback callback) {
+        List<String> fullyBookedDays = new ArrayList<>();
+
+        // Get a reference to the appointments node in the Firebase database
+        DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference().child("appointments");
+
+        // Initialize a HashMap to store the count of occurrences for each date
+        final Map<String, Integer> dateOccurrences = new HashMap<>();
+
+        // Add a ValueEventListener to retrieve all appointments
+        appointmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Iterate through all appointments
+                for (DataSnapshot appointmentSnapshot : dataSnapshot.getChildren()) {
+                    // Get the date of each appointment
+                    String date = appointmentSnapshot.child("date").getValue(String.class);
+                    // Increment the count of occurrences for this date
+                    if (dateOccurrences.containsKey(date)) {
+                        dateOccurrences.put(date, dateOccurrences.get(date) + 1);
+                    } else {
+                        dateOccurrences.put(date, 1);
+                    }
+                }
+
+                // Iterate through the dates and find those with more than 20 occurrences
+                for (Map.Entry<String, Integer> entry : dateOccurrences.entrySet()) {
+                    String date = entry.getKey();
+                    int occurrences = entry.getValue();
+                    if (occurrences >= 2) {
+                        fullyBookedDays.add(date);
+                        // Add your logic here to handle the dates with more than 20 occurrences
+                    }
+                }
+                callback.onFullyBookedDays(fullyBookedDays);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle potential errors
+                Log.e("MainActivity", "Error querying database: " + databaseError.getMessage());
+            }
+        });
+        return fullyBookedDays;
+    }
+
+
 }
+
+

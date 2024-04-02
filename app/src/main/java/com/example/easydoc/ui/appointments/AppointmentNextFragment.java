@@ -66,7 +66,7 @@ public class AppointmentNextFragment extends Fragment {
         FirebaseUser user = mAuth.getCurrentUser();
         DatabaseReference userRef = mDatabase.child("users").child(user.getUid());
         button.setOnClickListener(view -> {
-            Appointment appointment = new Appointment( d, t, message.getText().toString());
+            Appointment appointment = new Appointment( d, t, message.getText().toString(),user.getDisplayName());
             userRef.child("appointmentsID").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

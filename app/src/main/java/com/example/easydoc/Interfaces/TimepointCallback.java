@@ -1,4 +1,4 @@
-package com.example.easydoc.Callbacks;
+package com.example.easydoc.Interfaces;
 
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
