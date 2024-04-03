@@ -12,7 +12,10 @@ public class UserAccount extends User{
         super(uid, name, email, phoneNumber, dateOfBirth);
         appointmentsList = new ArrayList<>();
     }
-    
+    public UserAccount(){
+        super();
+
+    }
 
     public List<String> getAppointmentsList() {
         return appointmentsList;
@@ -21,4 +24,8 @@ public class UserAccount extends User{
         appointmentsList.add(appointment);
     }
 
+    public UserAccount setAppointmentsList(List<String> appointmentsList) {
+        this.appointmentsList = appointmentsList;
+        return this;
+    }
 }

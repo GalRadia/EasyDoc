@@ -4,13 +4,14 @@ import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.SortedList;
 
-import com.example.easydoc.Logic.SortedListComperator;
+import com.example.easydoc.Interfaces.AppointmentCallback;
+import com.example.easydoc.Interfaces.AppointmentIDCallback;
 import com.example.easydoc.Model.Appointment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
@@ -44,15 +45,16 @@ public class Helper {
         return sdf.format(calendar.getTime());
     }
 
-    public static SortedList<Appointment> getAllAppointmentsFromUser(DatabaseReference ref, String userId) {
-        List<String> appointmentsIDs = new ArrayList<>();
-        ref.child("users").child(userId).child("appointments").addListenerForSingleValueEvent(new ValueEventListener() {
+    public static void getAllAppointmentsIDFromUser(DatabaseReference ref, String userId, AppointmentIDCallback callback) {
+        Query query = ref.child("users").child(userId).child("appointmentsID");
+        List<String> appointmentID = new ArrayList<>();
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
-                    appointmentsIDs.add(appointmentSnapshot.getValue().toString());
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot appointmentIDSnapshot : snapshot.getChildren()) {
+                   appointmentID.add(appointmentIDSnapshot.getValue(String.class));
                 }
-                //callback.onAppointmentsIDLoaded(getAllAppointmentsFromList(ref, appointmentsIDs,callback));
+                callback.onAppointmentIDLoaded(appointmentID);
             }
 
             @Override
@@ -61,25 +63,28 @@ public class Helper {
             }
         });
 
-        return (SortedList<Appointment>) getAllAppointmentsFromList(ref, appointmentsIDs);
+
     }
-    public static List<Appointment> getAllAppointmentsFromList(DatabaseReference ref, List<String> appointmentsIDs) {
-        SortedList<Appointment> appointmentsList = new SortedList<>(Appointment.class, new SortedListComperator());
-        for (String appointmentID : appointmentsIDs) {
-            ref.child("appointments").child(appointmentID).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    Appointment appointment = snapshot.getValue(Appointment.class);
-                    appointmentsList.add(appointment);
-                   // callback.onAppointmentsLoaded(appointmentsList);
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
+    public static void getAllAppointmentsFromList(DatabaseReference ref, List<String> appointmentsIDs, AppointmentCallback callback) {
+        Query query = ref.child("appointments");
+        List<Appointment> appointments = new ArrayList<>();
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
+                    if (appointmentsIDs.contains(appointmentSnapshot.getKey())) {
+                        Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
+                        appointments.add(appointment);
+                    }
                 }
-            });
-        }
-        return (List<Appointment>) appointmentsList;
+                callback.onAppointmentLoaded(appointments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }

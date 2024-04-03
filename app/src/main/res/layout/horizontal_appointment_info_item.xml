@@ -89,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:text="Change"
                     app:cornerRadius="20dp"
-                    app:size="small" />
+                     />
 
                 <!-- Delete Button -->
                 <com.google.android.material.button.MaterialButton
@@ -98,7 +98,6 @@
                     android:layout_height="wrap_content"
                     android:text="Delete"
                     app:cornerRadius="20dp"
-                    app:size="small"
                     android:layout_marginStart="8dp" />
 
             </LinearLayout>

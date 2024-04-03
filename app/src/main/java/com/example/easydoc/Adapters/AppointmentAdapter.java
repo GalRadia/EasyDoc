@@ -15,56 +15,67 @@ import com.example.easydoc.databinding.HorizontalAppointmentInfoItemBinding;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.AppointmentViewHolder>{
-        private Context context;
-        private HorizontalAppointmentInfoItemBinding binding;
-        SortedList<Appointment> appointments;
+public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.AppointmentViewHolder> {
+    private Context context;
+    private HorizontalAppointmentInfoItemBinding binding;
+    private List<Appointment> appointments = new ArrayList<>();
 
-        public AppointmentAdapter(Context context, SortedList<Appointment> appointments) {
-            this.context = context;
-            this.appointments = appointments;
-        }
+    public AppointmentAdapter(Context context, List<Appointment> appointments) {
+        this.context = context;
+        this.appointments = appointments;
 
-        @NonNull
-        @Override
-        public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(context).inflate(R.layout.horizontal_appointment_info_item, parent, false);
-            return new AppointmentViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull AppointmentAdapter.AppointmentViewHolder holder, int position) {
-            Appointment appointment = appointments.get(position);
-            holder.appointTXTDate.setText(appointment.getDate());
-            holder.appointTXTTime.setText(appointment.getTime());
-            holder.appointTXTName.setText(appointment.getName());
-            holder.appointTXTDescription.setText(appointment.getText());
-            holder.appointTXTDescription.setOnClickListener(v->{
-                if (holder.appointTXTDescription.getMaxLines() == 2){
-                    holder.appointTXTDescription.setMaxLines(Integer.MAX_VALUE);
-                }else {
-                    holder.appointTXTDescription.setMaxLines(2);
-                }
-
-            });
+    }
 
 
-        }
+    @NonNull
+    @Override
+    public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        binding = HorizontalAppointmentInfoItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new AppointmentViewHolder(binding);
+    }
 
-        @Override
-        public int getItemCount() {
-            return appointments.size();
-        }
-        public class AppointmentViewHolder extends RecyclerView.ViewHolder {
-            private MaterialTextView appointTXTDate, appointTXTTime, appointTXTName, appointTXTDescription;
-            public AppointmentViewHolder(@NonNull View itemView) {
-                super(itemView);
-                appointTXTDate= binding.appointTXTDate;
-                appointTXTTime= binding.appointTXTTime;
-                appointTXTName= binding.appointTXTName;
-                appointTXTDescription= binding.appointTXTDescription;
+    @Override
+    public void onBindViewHolder(@NonNull AppointmentAdapter.AppointmentViewHolder holder, int position) {
+        Appointment appointment = appointments.get(position);
+        holder.appointTXTDate.setText(appointment.getDate());
+        holder.appointTXTTime.setText(appointment.getTime());
+        holder.appointTXTName.setText(appointment.getName());
+        holder.appointTXTDescription.setText(appointment.getText());
+        holder.appointTXTDescription.setOnClickListener(v -> {
+            if (holder.appointTXTDescription.getMaxLines() == 2) {
+                holder.appointTXTDescription.setMaxLines(Integer.MAX_VALUE);
+            } else {
+                holder.appointTXTDescription.setMaxLines(2);
             }
+
+        });
+
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return appointments.size();
+    }
+
+    public void setAppointments(List<Appointment> newAppointments) {
+        this.appointments = newAppointments;
+        notifyDataSetChanged(); // This is crucial for informing the RecyclerView about the data change.
+    }
+
+    public class AppointmentViewHolder extends RecyclerView.ViewHolder {
+        HorizontalAppointmentInfoItemBinding binding;
+        private MaterialTextView appointTXTDate, appointTXTTime, appointTXTName, appointTXTDescription;
+
+        public AppointmentViewHolder(HorizontalAppointmentInfoItemBinding binding) {
+            super(binding.getRoot());
+            appointTXTDate = binding.appointTXTDate;
+            appointTXTTime = binding.appointTXTTime;
+            appointTXTName = binding.appointTXTName;
+            appointTXTDescription = binding.appointTXTDescription;
         }
+    }
 
 }

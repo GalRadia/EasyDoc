@@ -9,11 +9,13 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.R;
+import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.databinding.FragmentAppointmentNextBinding;
 import com.example.easydoc.databinding.FragmentAppointmentsBinding;
 import com.google.android.material.button.MaterialButton;
@@ -39,6 +41,8 @@ import java.util.List;
 public class AppointmentNextFragment extends Fragment {
     private FragmentAppointmentNextBinding binding;
     private FirebaseAuth mAuth;
+    private DatabaseRepository repository;
+    private AppointmentsViewModel appointmentsViewModel;
 
     public AppointmentNextFragment() {
         // Required empty public constructor
@@ -48,6 +52,8 @@ public class AppointmentNextFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        appointmentsViewModel = new ViewModelProvider(requireActivity()).get(AppointmentsViewModel.class);
+        repository = DatabaseRepository.getInstance();
         Calendar c = Calendar.getInstance();
         binding = FragmentAppointmentNextBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -67,26 +73,27 @@ public class AppointmentNextFragment extends Fragment {
         DatabaseReference userRef = mDatabase.child("users").child(user.getUid());
         button.setOnClickListener(view -> {
             Appointment appointment = new Appointment( d, t, message.getText().toString(),user.getDisplayName());
-            userRef.child("appointmentsID").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    List<String> appointmentsID = new ArrayList<>();
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        if (postSnapshot.exists())
-                            appointmentsID.add(postSnapshot.getValue().toString());
-                    }
-                    appointmentsID.add(appointment.getId());
-                    userRef.child("appointmentsID").setValue(appointmentsID);
-                }
+//            userRef.child("appointmentsID").addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                    List<String> appointmentsID = new ArrayList<>();
+//                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+//                        if (postSnapshot.exists())
+//                            appointmentsID.add(postSnapshot.getValue().toString());
+//                    }
+//                    appointmentsID.add(appointment.getId());
+//                    userRef.child("appointmentsID").setValue(appointmentsID);
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//                    // Getting Post failed, log a message
+//                    Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
+//                }
+//            });
+            repository.insertAppointment(appointment);
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    // Getting Post failed, log a message
-                    Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
-                }
-            });
-
-            mDatabase.child("appointments").child(appointment.getId()).setValue(appointment);
+            //mDatabase.child("appointments").child(appointment.getId()).setValue(appointment);
             Navigation.findNavController(root).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);
         });
 

@@ -9,29 +9,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SortedList;
 
 import com.example.easydoc.Adapters.AppointmentAdapter;
-import com.example.easydoc.Logic.SortedListComperator;
-import com.example.easydoc.Model.Appointment;
-import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentDashboardBinding;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
-    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private AppointmentAdapter adapter;
 
-
-
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         DashboardViewModel dashboardViewModel =
@@ -40,16 +31,33 @@ public class DashboardFragment extends Fragment {
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // Initialize RecyclerView and Adapter
+        initializeRecyclerView();
+
+        // Observe the LiveData for the text
         final TextView textView = binding.textDashboard;
         dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
-        FirebaseUser user = mAuth.getCurrentUser();
-        RecyclerView recyclerView = binding.recyclerView;
-        SortedList<Appointment> appointments = Helper.getAllAppointmentsFromUser(mDatabase, user.getUid());
-        AppointmentAdapter adapter = new AppointmentAdapter(getContext(), appointments);
-        recyclerView.setAdapter(adapter);
+        // Observe the LiveData for appointments
+        dashboardViewModel.getUserAppointments().observe(getViewLifecycleOwner(), appointments -> {
+            // Check if adapter is null, which should not happen in this setup, but just in case
+            if (adapter != null) {
+                adapter.setAppointments(appointments);
+            }
+        });
+
 
         return root;
+    }
+
+    private void initializeRecyclerView() {
+        // Assuming the RecyclerView is correctly defined in your fragment_dashboard.xml
+        RecyclerView recyclerView = binding.recyclerView;
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Initialize your adapter with an empty list
+        adapter = new AppointmentAdapter(getContext(), new ArrayList<>());
+        recyclerView.setAdapter(adapter);
     }
 
     @Override

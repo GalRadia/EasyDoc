@@ -1,7 +1,7 @@
 package com.example.easydoc.Model;
 
 public abstract class User {
-    private final String uid;
+    private  String uid;
     private String name;
     private String email;
     private String phone;
@@ -13,6 +13,9 @@ public abstract class User {
         this.email = email;
         this.phone = phone;
         this.dateOfBirth = dateOfBirth;
+    }
+    public User(){
+
     }
 
     public User setName(String name) {

@@ -37,9 +37,9 @@ import java.util.Map;
 public class AppointmentsFragment extends Fragment {
 
     private FragmentAppointmentsBinding binding;
-    TextInputEditText dateLayout;
-    TextInputEditText timeLayout;
-    TimePickerDialog tpd;
+    private TextInputEditText dateLayout;
+    private TextInputEditText timeLayout;
+    private TimePickerDialog tpd;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -58,15 +58,14 @@ public class AppointmentsFragment extends Fragment {
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
-        List<String> fullyBookedDays = getAllFullyBookedDays( new FullyBookedDaysCallback() {
+        getAllFullyBookedDays(new FullyBookedDaysCallback() {
             @Override
             public void onFullyBookedDays(List<String> fullyBookedDays) {
                 // Use the result list here
-                int x=1;
+                int x = 1;
 
             }
         });
-
 
         dateLayout = binding.appointmentDate;
         timeLayout = binding.appointmentTime;
@@ -175,7 +174,7 @@ public class AppointmentsFragment extends Fragment {
         });
     }
 
-    public List<String> getAllFullyBookedDays(final FullyBookedDaysCallback callback) {
+    public void getAllFullyBookedDays(final FullyBookedDaysCallback callback) {
         List<String> fullyBookedDays = new ArrayList<>();
 
         // Get a reference to the appointments node in the Firebase database
@@ -218,7 +217,6 @@ public class AppointmentsFragment extends Fragment {
                 Log.e("MainActivity", "Error querying database: " + databaseError.getMessage());
             }
         });
-        return fullyBookedDays;
     }
 
 
