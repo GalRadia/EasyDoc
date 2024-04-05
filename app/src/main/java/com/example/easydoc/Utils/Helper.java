@@ -1,7 +1,6 @@
 package com.example.easydoc.Utils;
 
 import android.icu.text.SimpleDateFormat;
-import android.icu.util.Calendar;
 
 import androidx.annotation.NonNull;
 
@@ -17,6 +16,7 @@ import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 

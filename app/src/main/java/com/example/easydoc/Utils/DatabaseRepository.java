@@ -14,6 +14,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,4 +179,29 @@ public class DatabaseRepository {
             }
         });
     }
+
+//    public Timepoint[] getDisabledTimepointsFromDate(String date) {
+//        List<Timepoint> disabledTimes = new ArrayList<>();
+//        appointmentsReference.orderByChild("date").equalTo(date).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    String time = snapshot.child("time").getValue(String.class);
+//                    if (time != null) {
+//                        String[] timeParts = time.split(":");
+//                        int hour = Integer.parseInt(timeParts[0]);
+//                        int minute = Integer.parseInt(timeParts[1]);
+//                        Timepoint timepoint = new Timepoint(hour, minute);
+//                        disabledTimes.add(timepoint);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                // Handle potential errors
+//            }
+//        });
+//        return disabledTimes.toArray(new Timepoint[0]);
+//    }
 }
