@@ -45,46 +45,15 @@ public class Helper {
         return sdf.format(calendar.getTime());
     }
 
-    public static void getAllAppointmentsIDFromUser(DatabaseReference ref, String userId, AppointmentIDCallback callback) {
-        Query query = ref.child("users").child(userId).child("appointmentsID");
-        List<String> appointmentID = new ArrayList<>();
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot appointmentIDSnapshot : snapshot.getChildren()) {
-                   appointmentID.add(appointmentIDSnapshot.getValue(String.class));
-                }
-                callback.onAppointmentIDLoaded(appointmentID);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
-    }
-
-    public static void getAllAppointmentsFromList(DatabaseReference ref, List<String> appointmentsIDs, AppointmentCallback callback) {
-        Query query = ref.child("appointments");
-        List<Appointment> appointments = new ArrayList<>();
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
-                    if (appointmentsIDs.contains(appointmentSnapshot.getKey())) {
-                        Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
-                        appointments.add(appointment);
-                    }
-                }
-                callback.onAppointmentLoaded(appointments);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    public static boolean isAppointmentPassed(String date, String time) {
+        Calendar today = Calendar.getInstance();
+        if (today.after(stringToCalendar(date))) {
+            return true;
+        } else if (today.equals(stringToCalendar(date))) {
+            Timepoint timepoint = stringToTimepoint(time);
+            return today.get(Calendar.HOUR_OF_DAY) > timepoint.getHour() || (today.get(Calendar.HOUR_OF_DAY) == timepoint.getHour() && today.get(Calendar.MINUTE) > timepoint.getMinute());
+        }
+        return false;
     }
 }

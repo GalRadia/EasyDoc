@@ -5,5 +5,6 @@ import com.example.easydoc.Model.Appointment;
 import java.util.List;
 
 public interface AppointmentCallback {
-    void onAppointmentLoaded(List<Appointment> appointments);
+    void onRemoveAppointment(String appointmentId);
+    void onUpdateAppointmentText(String appointmentId, String text);
 }

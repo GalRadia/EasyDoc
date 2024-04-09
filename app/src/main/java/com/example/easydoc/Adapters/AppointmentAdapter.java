@@ -1,17 +1,22 @@
 package com.example.easydoc.Adapters;
 
 import android.content.Context;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 
+import com.example.easydoc.Interfaces.AppointmentCallback;
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.R;
 import com.example.easydoc.databinding.HorizontalAppointmentInfoItemBinding;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
@@ -20,12 +25,18 @@ import java.util.List;
 public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.AppointmentViewHolder> {
     private Context context;
     private HorizontalAppointmentInfoItemBinding binding;
+    private AppointmentCallback appointmentCallback;
     private List<Appointment> appointments = new ArrayList<>();
+
 
     public AppointmentAdapter(Context context, List<Appointment> appointments) {
         this.context = context;
         this.appointments = appointments;
 
+    }
+
+    public void setAppointmentCallback(AppointmentCallback appointmentCallback) {
+        this.appointmentCallback = appointmentCallback;
     }
 
 
@@ -39,6 +50,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     @Override
     public void onBindViewHolder(@NonNull AppointmentAdapter.AppointmentViewHolder holder, int position) {
         Appointment appointment = appointments.get(position);
+
+
         holder.appointTXTDate.setText(appointment.getDate());
         holder.appointTXTTime.setText(appointment.getTime());
         holder.appointTXTName.setText(appointment.getName());
@@ -51,6 +64,21 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
             }
 
         });
+        if (appointmentCallback != null) {
+
+            holder.appointBTNDelete.setOnClickListener(v -> appointmentCallback.onRemoveAppointment(appointment.getId()));
+            holder.appointBTNUpdate.setOnClickListener(v -> {
+                EditText input = new EditText(context);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setTitle("Update Appointment Text");
+                builder.setView(input);
+                builder.setPositiveButton("Update", (dialog, which) -> {
+                    appointmentCallback.onUpdateAppointmentText(appointment.getId(), input.getText().toString());
+                });
+                builder.show();
+            });
+        }
 
 
     }
@@ -66,8 +94,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     }
 
     public class AppointmentViewHolder extends RecyclerView.ViewHolder {
-        HorizontalAppointmentInfoItemBinding binding;
         private MaterialTextView appointTXTDate, appointTXTTime, appointTXTName, appointTXTDescription;
+        private MaterialButton appointBTNDelete, appointBTNUpdate;
 
         public AppointmentViewHolder(HorizontalAppointmentInfoItemBinding binding) {
             super(binding.getRoot());
@@ -75,6 +103,8 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
             appointTXTTime = binding.appointTXTTime;
             appointTXTName = binding.appointTXTName;
             appointTXTDescription = binding.appointTXTDescription;
+            appointBTNDelete = binding.buttonDelete;
+            appointBTNUpdate = binding.buttonChange;
         }
     }
 

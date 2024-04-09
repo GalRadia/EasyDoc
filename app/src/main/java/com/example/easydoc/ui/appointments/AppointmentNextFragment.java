@@ -1,5 +1,6 @@
 package com.example.easydoc.ui.appointments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -91,7 +92,16 @@ public class AppointmentNextFragment extends Fragment {
 //                    Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
 //                }
 //            });
-            repository.insertAppointment(appointment);
+            repository.insertAppointment(appointment,getContext());
+//            Calendar cal = Calendar.getInstance();
+//            Intent intent = new Intent(Intent.ACTION_EDIT);
+//            intent.setType("vnd.android.cursor.item/event");
+//            intent.putExtra("beginTime", cal.getTimeInMillis());
+//            intent.putExtra("allDay", true);
+//            intent.putExtra("rrule", "FREQ=YEARLY");
+//            intent.putExtra("endTime", cal.getTimeInMillis()+60*60*1000);
+//            intent.putExtra("title", "A Test Event from android app");
+//            startActivity(intent);
 
             //mDatabase.child("appointments").child(appointment.getId()).setValue(appointment);
             Navigation.findNavController(root).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);

@@ -1,38 +1,32 @@
 package com.example.easydoc.ui.appointments;
 
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.easydoc.Interfaces.BusyDaysCallback;
-import com.example.easydoc.Interfaces.FullyBookedDaysCallback;
-import com.example.easydoc.Interfaces.TimepointCallback;
+import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.R;
+import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentAppointmentsBinding;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AppointmentsFragment extends Fragment {
 
@@ -40,40 +34,28 @@ public class AppointmentsFragment extends Fragment {
     private TextInputEditText appointmentDate;
     private TextInputEditText appointmentTime;
     private TimePickerDialog tpd;
+    private DatePickerDialog dpd;
+    private LiveData<DoctorOffice> doctorOfficeLiveData;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
         AppointmentsViewModel appointmentsViewModel =
                 new ViewModelProvider(this).get(AppointmentsViewModel.class);
 
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        doctorOfficeLiveData = appointmentsViewModel.getDoctor();
         Button nextButton = binding.buttonNext;
-        DatePickerDialog dpd = DatePickerDialog.newInstance(
-                (view, year, monthOfYear, dayOfMonth) -> {
-                    // Handle the date
-                },
-                Calendar.getInstance().get(Calendar.YEAR),
-                Calendar.getInstance().get(Calendar.MONTH),
-                Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-        );
-//        getAllFullyBookedDays(new FullyBookedDaysCallback() {
-//            @Override
-//            public void onFullyBookedDays(List<String> fullyBookedDays) {
-//                // Use the result list here
-//                int x = 1;
-//
-//            }
-//        });
+
 
         appointmentDate = binding.appointmentDate;
         appointmentTime = binding.appointmentTime;
-        dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
-            appointmentDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
-        });
-
+        appointmentTime.setEnabled(false);
 
         nextButton.setOnClickListener(v -> {
+            if(!validateText())
+                return;
             Bundle bundle = new Bundle();
             bundle.putString("appointmentDate", appointmentDate.getText().toString());
             bundle.putString("appointmentTime", appointmentTime.getText().toString());
@@ -81,8 +63,11 @@ public class AppointmentsFragment extends Fragment {
         });
 
         appointmentDate.setOnClickListener(v -> {
-                    this.tpd= new TimePickerDialog();
-                    this.tpd=initializeTimePicker();
+                    this.dpd = new DatePickerDialog();
+                    this.dpd = initializeDatePicker();
+                    this.tpd = new TimePickerDialog();
+                    this.tpd = initializeTimePicker();
+                    appointmentTime.setEnabled(true);
 
                     appointmentsViewModel.getBusyDates(new BusyDaysCallback<List<Calendar>>() {
                         @Override
@@ -98,18 +83,36 @@ public class AppointmentsFragment extends Fragment {
                     });
                     dpd.show(getParentFragmentManager(), "Datepickerdialog");
                 }
-                );
+        );
         appointmentTime.setOnClickListener(view -> {
+            this.dpd = new DatePickerDialog();
+            this.dpd = initializeDatePicker();
+            this.tpd = new TimePickerDialog();
+            this.tpd = initializeTimePicker();
             String date = appointmentDate.getText().toString();
             Timepoint[] disabledTimes = appointmentsViewModel.getDisabledTimepointsFromDate(date);
             tpd.setDisabledTimes(disabledTimes);
-            tpd.show(getParentFragmentManager(), "Timepickerdialog");
-            this.tpd=initializeTimePicker();
 
+            tpd.show(getParentFragmentManager(), "Timepickerdialog");
 
 
         });
+
         return root;
+    }
+
+    private boolean validateText() {
+        if (appointmentDate.getText().toString().isEmpty()) {
+            appointmentDate.setError("Please select a date");
+            Toast.makeText(getContext(), "Please select a date", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (appointmentTime.getText().toString().isEmpty()) {
+            appointmentTime.setError("Please select a time");
+            Toast.makeText(getContext(), "Please select a time", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     private TimePickerDialog initializeTimePicker() {
@@ -121,9 +124,35 @@ public class AppointmentsFragment extends Fragment {
                 Calendar.getInstance().get(Calendar.MINUTE),
                 true
         );
-        tpd.setTimeInterval(1, 30);
-        tpd.setMinTime(8, 0, 0);
-        tpd.setMaxTime(20, 0, 0);
+        String sTime = doctorOfficeLiveData.getValue().getStartTime();
+        String eTime = doctorOfficeLiveData.getValue().getEndTime();
+        int sHour = Integer.parseInt(sTime.split(":")[0]);
+        int sMinute = Integer.parseInt(sTime.split(":")[1]);
+        int eHour = Integer.parseInt(eTime.split(":")[0]);
+        int eMinute = Integer.parseInt(eTime.split(":")[1]);
+        int duration = Integer.parseInt(doctorOfficeLiveData.getValue().getAppointmentDuration());
+        int currentHourTime = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int currentMinuteTime = Calendar.getInstance().get(Calendar.MINUTE);
+        if(currentMinuteTime>duration)
+            currentHourTime++;
+
+
+        tpd.setTimeInterval(1, duration);
+        Calendar cal = Calendar.getInstance();
+        if (cal.get(Calendar.DATE) == Helper.stringToCalendar(appointmentDate.getText().toString()).get(Calendar.DATE)) {
+            tpd.setMinTime(currentHourTime, 0, 0);
+            if(currentHourTime>eHour)
+            {
+                tpd.setMinTime(sHour, sMinute, 0);
+                tpd.setMaxTime(sHour, sMinute, 0);
+                return tpd;
+            }
+        } else{
+            tpd.setMinTime(sHour, sMinute, 0);
+
+        }
+        tpd.setMaxTime(eHour, eMinute, 0);
+
         tpd.setOnTimeSetListener((view, hourOfDay, minute, second) -> {
             String min = minute > 9 ? "" + minute : "0" + minute;
             appointmentTime.setText(hourOfDay + ":" + min);
@@ -131,59 +160,43 @@ public class AppointmentsFragment extends Fragment {
         return tpd;
     }
 
+    private DatePickerDialog initializeDatePicker() {
+        DatePickerDialog dpd = DatePickerDialog.newInstance(
+                (view, year, monthOfYear, dayOfMonth) -> {
+                    // Handle the date
+                },
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+        );
+
+        dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
+            appointmentDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+        });
+        dpd.setMinDate(Calendar.getInstance());
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.MONTH, 1);
+        dpd.setMaxDate(maxDate);
+        Calendar calendar = Calendar.getInstance();
+        List<Calendar> disabledDays = new ArrayList<>();
+        calendar.add(Calendar.DAY_OF_MONTH, 1); // Start from tomorrow
+
+        for (int i = 0; i < 30; i++) {
+            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+                disabledDays.add((Calendar) calendar.clone());
+            }
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        dpd.setDisabledDays(disabledDays.toArray(new Calendar[0]));
+
+        return dpd;
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
-
-
-
-
-//    public void getAllFullyBookedDays(final FullyBookedDaysCallback callback) {
-//        List<String> fullyBookedDays = new ArrayList<>();
-//
-//        // Get a reference to the appointments node in the Firebase database
-//        DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference().child("appointments");
-//
-//        // Initialize a HashMap to store the count of occurrences for each date
-//        final Map<String, Integer> dateOccurrences = new HashMap<>();
-//
-//        // Add a ValueEventListener to retrieve all appointments
-//        appointmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                // Iterate through all appointments
-//                for (DataSnapshot appointmentSnapshot : dataSnapshot.getChildren()) {
-//                    // Get the date of each appointment
-//                    String date = appointmentSnapshot.child("date").getValue(String.class);
-//                    // Increment the count of occurrences for this date
-//                    if (dateOccurrences.containsKey(date)) {
-//                        dateOccurrences.put(date, dateOccurrences.get(date) + 1);
-//                    } else {
-//                        dateOccurrences.put(date, 1);
-//                    }
-//                }
-//
-//                // Iterate through the dates and find those with more than 20 occurrences
-//                for (Map.Entry<String, Integer> entry : dateOccurrences.entrySet()) {
-//                    String date = entry.getKey();
-//                    int occurrences = entry.getValue();
-//                    if (occurrences >= 2) {
-//                        fullyBookedDays.add(date);
-//                        // Add your logic here to handle the dates with more than 20 occurrences
-//                    }
-//                }
-//                callback.onFullyBookedDays(fullyBookedDays);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                // Handle potential errors
-//                Log.e("MainActivity", "Error querying database: " + databaseError.getMessage());
-//            }
-//        });
-//    }
 
 
 }

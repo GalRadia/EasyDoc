@@ -66,8 +66,17 @@ dependencies {
 //    implementation 'com.facebook.android:facebook-android-sdk:8.x'
 
     implementation(libs.firebase.database)
-    implementation("com.wdullaer:materialdatetimepicker:4.2.3")
+    implementation(libs.materialdatetimepicker)
+    //    implementation("com.wdullaer:materialdatetimepicker:4.2.3")
+   // implementation(libs.gms.play.services.auth)
+    implementation(libs.firebase.messaging)
     implementation(libs.gms.play.services.auth)
+    implementation(libs.lottie)
+
+
+
+
+
 
 
 

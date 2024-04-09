@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.easydoc.Interfaces.BusyDaysCallback;
 import com.example.easydoc.Model.Appointment;
+import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.Utils.Helper;
 import com.google.common.collect.ImmutableList;
@@ -59,7 +60,7 @@ public class AppointmentsViewModel extends ViewModel {
 
                 List<Calendar> busyDates = new ArrayList<>();
                 for (Map.Entry<String, Integer> entry : dateCounts.entrySet()) {
-                    if (entry.getValue() > 2) {
+                    if (entry.getValue() > 4) {
                         Calendar date = Helper.stringToCalendar(entry.getKey());
                         if (date != null) {
                             busyDates.add(date);
@@ -77,11 +78,10 @@ public class AppointmentsViewModel extends ViewModel {
         });
     }
 
-    private Calendar stringToCalendar(String dateStr) {
-        // Assuming your date string format is known and consistent, parse it to Calendar here
-        // Example parsing code omitted for brevity
-        return null; // Replace this with actual parsing logic
+    public LiveData<DoctorOffice> getDoctor() {
+        return repository.getDoctorOfficeLiveData();
     }
+
 
 
 

@@ -5,14 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.easydoc.Model.Appointment;
-import com.example.easydoc.Model.User;
 import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.Utils.DatabaseRepository;
-import com.example.easydoc.Utils.Helper;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -43,4 +37,13 @@ public class DashboardViewModel extends ViewModel {
     public LiveData<String> getText() {
         return mText;
     }
+    public void removeAppointment(String appointmentID) {
+        repository.removeAppointment(appointmentID);
+    }
+    public void updateAppointment(String appointmentID,String text) {
+        repository.updateText(appointmentID,text);
+    }
+  public LiveData<Boolean> isDoctor(){
+        return repository.getIsDoctorLiveData();
+  }
 }
