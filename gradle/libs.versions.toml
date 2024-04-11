@@ -1,34 +1,41 @@
 [versions]
-agp = "8.3.1"
-firebaseAnalyticsKtx = "21.6.1"
-firebaseBom = "32.8.0"
+agp = "8.3.0"
+firebaseAnalytics = "21.6.1"
+firebaseAuth = "22.3.1"
+firebaseBom = "32.7.4"
 firebaseDatabase = "20.3.1"
-firebaseMessaging = "XX.X.X"
+firebaseMessaging = "23.4.1"
 firebaseUiAuth = "8.0.2"
+googleServices = "4.4.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
-lottie = "4.2.0"
+lottie = "6.3.0"
 material = "1.11.0"
 constraintlayout = "2.1.4"
 lifecycleLivedataKtx = "2.7.0"
 lifecycleViewmodelKtx = "2.7.0"
 materialdatetimepicker = "4.2.3"
+navigation = "VERSION_NUMBER"
 navigationFragment = "2.7.7"
 navigationFragmentKtx = "2.7.7"
 navigationUi = "2.7.7"
 activity = "1.8.2"
+playServicesAuth = "20.7.0"
+playServicesMaps = "18.2.0"
+secretsGradlePlugin = "2.0.1"
 gms = "4.4.1"
-gmsPlayServicesAuth = "20.7.0"
-playServicesAuth = "19.2.0"
+
 
 [libraries]
-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebaseAnalyticsKtx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics", version.ref = "firebaseAnalytics" }
+firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-ui-auth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -39,15 +46,18 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 materialdatetimepicker = { module = "com.wdullaer:materialdatetimepicker", version.ref = "materialdatetimepicker" }
+navigation = { module = "com.google.android.libraries.navigation:navigation", version.ref = "navigation" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-gms-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "gmsPlayServicesAuth" }
 navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragmentKtx" }
-play-services-auth = { module = "implementation 'com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
+secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 gmsGoogleServices = { id = "com.google.gms.google-services", version.ref = "gms" }
+
 

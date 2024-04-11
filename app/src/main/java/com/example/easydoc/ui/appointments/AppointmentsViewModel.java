@@ -1,7 +1,5 @@
 package com.example.easydoc.ui.appointments;
 
-import android.app.DownloadManager;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -11,7 +9,6 @@ import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.Utils.Helper;
-import com.google.common.collect.ImmutableList;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,8 +41,9 @@ public class AppointmentsViewModel extends ViewModel {
     public LiveData<String> getText() {
         return mText;
     }
+
     public void getBusyDates(BusyDaysCallback<List<Calendar>> callback) {
-       Query query = databaseReference.orderByChild("date");
+        Query query = databaseReference.orderByChild("date");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -78,11 +76,9 @@ public class AppointmentsViewModel extends ViewModel {
         });
     }
 
-    public LiveData<DoctorOffice> getDoctor() {
+    public LiveData<DoctorOffice> getDoctorOffice() {
         return repository.getDoctorOfficeLiveData();
     }
-
-
 
 
     public Timepoint[] getDisabledTimepointsFromDate(String date) {
@@ -96,9 +92,9 @@ public class AppointmentsViewModel extends ViewModel {
             if (appointment.getDate() != null && appointment.getDate().equals(date)) {
                 // Assuming your Appointment model's time is stored as a String in "HH:mm" format
                 String[] parts = appointment.getTime().split(":");
-                    int hours = Integer.parseInt(parts[0]);
-                    int minutes = Integer.parseInt(parts[1]);
-                    disabledTimepoints.add(new Timepoint(hours, minutes));
+                int hours = Integer.parseInt(parts[0]);
+                int minutes = Integer.parseInt(parts[1]);
+                disabledTimepoints.add(new Timepoint(hours, minutes));
 
 
             }
@@ -106,4 +102,6 @@ public class AppointmentsViewModel extends ViewModel {
 
         return disabledTimepoints.toArray(new Timepoint[0]);
     }
+
+
 }

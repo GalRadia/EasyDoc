@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 
 import com.example.easydoc.Interfaces.AppointmentCallback;
+import com.example.easydoc.Logic.SortedListComperator;
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.R;
 import com.example.easydoc.databinding.HorizontalAppointmentInfoItemBinding;
@@ -26,12 +27,14 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     private Context context;
     private HorizontalAppointmentInfoItemBinding binding;
     private AppointmentCallback appointmentCallback;
-    private List<Appointment> appointments = new ArrayList<>();
+    private SortedList<Appointment> appointments;
 
 
     public AppointmentAdapter(Context context, List<Appointment> appointments) {
         this.context = context;
-        this.appointments = appointments;
+        SortedList<Appointment>srtl = new SortedList<>(Appointment.class,new SortedListComperator());
+        srtl.addAll(appointments);
+        this.appointments = srtl;
 
     }
 
@@ -89,7 +92,10 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     }
 
     public void setAppointments(List<Appointment> newAppointments) {
-        this.appointments = newAppointments;
+        SortedList<Appointment> srtl = new SortedList<>(Appointment.class,new SortedListComperator());
+        srtl.addAll(newAppointments);
+        this.appointments=srtl;
+        //this.appointments = (List<Appointment>) srtl;
         notifyDataSetChanged(); // This is crucial for informing the RecyclerView about the data change.
     }
 

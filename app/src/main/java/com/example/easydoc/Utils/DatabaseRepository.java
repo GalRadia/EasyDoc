@@ -38,14 +38,15 @@ public class DatabaseRepository {
     private final DatabaseReference appointmentsReference;
     private final DatabaseReference usersReference;
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private FirebaseUser currentUser = mAuth.getCurrentUser();
+    private FirebaseUser currentUser;
     private final MutableLiveData<FirebaseUser>currentUserLiveData = new MutableLiveData<>();
     private final DatabaseReference userAppointmentsReference;
     private final MutableLiveData<DoctorOffice> doctorOfficeMutableLiveData = new MutableLiveData<>();
-    private  MutableLiveData<Boolean> isDoctorLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isDoctorLiveData = new MutableLiveData<>();
 
 
     private DatabaseRepository() {
+        currentUser= mAuth.getCurrentUser();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         appointmentsReference = database.getReference("appointments");
         usersReference = database.getReference("users");
@@ -56,6 +57,22 @@ public class DatabaseRepository {
         fetchUsers();
         fetchAppointmentsForUser();
         fetchCurrentUserDoctor();
+        fetchDoctorOffice();
+    }
+
+    private void fetchDoctorOffice() {
+        doctorOfficeReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                DoctorOffice doctorOffice = snapshot.getValue(DoctorOffice.class);
+                doctorOfficeMutableLiveData.postValue(doctorOffice);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Log error
+            }
+        });
     }
 
     private void fetchCurrentUser() {

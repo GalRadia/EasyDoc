@@ -1,6 +1,5 @@
 package com.example.easydoc.ui.appointments;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +44,7 @@ public class AppointmentsFragment extends Fragment {
 
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        doctorOfficeLiveData = appointmentsViewModel.getDoctor();
+        doctorOfficeLiveData = appointmentsViewModel.getDoctorOffice();
         Button nextButton = binding.buttonNext;
 
 

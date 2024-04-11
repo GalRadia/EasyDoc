@@ -13,19 +13,19 @@
 
         <com.google.android.material.slider.Slider
             android:id="@+id/seekBar"
-            android:contentDescription="Seekbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
+            android:contentDescription="Seekbar"
+            android:soundEffectsEnabled="true"
             android:stepSize="10"
             android:valueFrom="0"
             android:valueTo="120"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:soundEffectsEnabled="true"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editMessageLayout"
@@ -66,15 +66,39 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch1"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="176dp"
             android:layout_marginTop="20dp"
-            android:text="Switch"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:checkedButton="@id/button1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/finishB" />
+            app:layout_constraintTop_toBottomOf="@id/finishB">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button3"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="nothing" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button1"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusedByDefault="true"
+                android:text="default" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/navigateButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="google" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
