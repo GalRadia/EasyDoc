@@ -1,9 +1,11 @@
 package com.example.easydoc.Model;
 
+
 import java.util.UUID;
 
 public class Appointment implements Comparable<Appointment> {
     private String id;
+
     private String date;
     private String time;
     private String text;

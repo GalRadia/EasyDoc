@@ -85,5 +85,14 @@
         tools:layout_editor_absoluteY="142dp"
         tools:src="@tools:sample/avatars" />
 
+    <Button
+        android:id="@+id/callButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintBottom_toTopOf="@+id/signOutButton"
+        app:layout_constraintTop_toBottomOf="@+id/navigateButton"
+        tools:layout_editor_absoluteX="31dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

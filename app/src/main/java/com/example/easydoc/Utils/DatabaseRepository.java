@@ -2,6 +2,7 @@ package com.example.easydoc.Utils;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.easydoc.Interfaces.DoctorCheckCallback;
+import com.example.easydoc.MainActivity;
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Model.UserAccount;
@@ -25,8 +27,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DatabaseRepository {
     private static DatabaseRepository instance;
@@ -34,11 +39,13 @@ public class DatabaseRepository {
     private final MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> userAppointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> userPassedAppointmentsLiveData = new MutableLiveData<>();
+    public final MutableLiveData<Map<String, String>> appointmentsWaitListLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<List<UserAccount>> usersLiveData = new MutableLiveData<>();
     private final DatabaseReference doctorOfficeReference;
     private final DatabaseReference appointmentsReference;
     private final DatabaseReference usersReference;
+    private final DatabaseReference appointmentsWaitListReference;
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
     private final MutableLiveData<FirebaseUser> currentUserLiveData = new MutableLiveData<>();
@@ -53,6 +60,8 @@ public class DatabaseRepository {
         appointmentsReference = database.getReference("appointments");
         usersReference = database.getReference("users");
         doctorOfficeReference = database.getReference("doctor office");
+        appointmentsWaitListReference = database.getReference("appointmentsWaitList");
+
         // fetchCurrentUser();
         userAppointmentsReference = database.getReference("users").child(currentUser.getUid().toString()).child("appointmentsID");
         fetchAppointments();
@@ -60,6 +69,28 @@ public class DatabaseRepository {
         fetchAppointmentsForUser();
         fetchCurrentUserDoctor();
         fetchDoctorOffice();
+        fetchAppointmentsWaitList();
+    }
+
+    private void fetchAppointmentsWaitList() {
+        appointmentsWaitListReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Map<String, String> appointmentsWaitList = new HashMap<>();
+                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
+                    String date = appointmentSnapshot.getValue(String.class);
+                    if (date != null) {
+                        appointmentsWaitList.put(appointmentSnapshot.getKey(), date);
+                    }
+                }
+                appointmentsWaitListLiveData.postValue(appointmentsWaitList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Log error
+            }
+        });
     }
 
     private void fetchDoctorOffice() {
@@ -146,6 +177,7 @@ public class DatabaseRepository {
         });
     }
 
+
     private void fetchUsers() {
         usersReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -189,9 +221,11 @@ public class DatabaseRepository {
     public LiveData<List<Appointment>> getAppointmentsFromUser() {
         return userAppointmentsLiveData;
     }
+
     public LiveData<List<Appointment>> getPassedAppointmentsLiveData() {
         return passedAppointmentsLiveData;
     }
+
     public LiveData<List<Appointment>> getUserPassedAppointmentsLiveData() {
         return userPassedAppointmentsLiveData;
     }
@@ -205,7 +239,7 @@ public class DatabaseRepository {
     }
 
     public void removeAppointment(String appointmentID) {
-        appointmentsReference.child(appointmentID).removeValue();
+        String date=getDateFromAppointmentID(appointmentID);
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -226,7 +260,73 @@ public class DatabaseRepository {
             }
         });
 
+        AbstractMap.SimpleEntry<String, String> appointmentEntry;
+        appointmentEntry = getAppointmentFromWaitingList(date);
+        if (appointmentEntry != null) {
+            String userID = appointmentEntry.getKey();
+            String name = getNameFromUserID(userID);
+            usersReference.child(userID).child("appointmentsID").push().setValue(appointmentID);
+            appointmentsReference.child(appointmentID).child("name").setValue(name);
+            appointmentsReference.child(appointmentID).child("text").setValue("Appointment from waiting list");
+            deleteFromWaitingList(appointmentEntry.getKey());
+        } else appointmentsReference.child(appointmentID).removeValue();
 
+
+    }
+    public boolean dateAvailable(String date){
+        int count=0;
+        for (Appointment appointment : appointmentsLiveData.getValue()) {
+            if (appointment.getDate().equals(date)) {
+                count++;
+            }
+        }
+        return count<appointmentsInDay();
+    }
+    public int appointmentsInDay(){
+        int duration= Integer.parseInt(doctorOfficeMutableLiveData.getValue().getAppointmentDuration());
+        int startHour=Integer.parseInt(doctorOfficeMutableLiveData.getValue().getStartTime().split(":")[0]);
+        int endHour=Integer.parseInt(doctorOfficeMutableLiveData.getValue().getEndTime().split(":")[0]);
+         return (endHour-startHour)*60/duration;
+    }
+
+    private String getNameFromUserID(String userID) {
+        String name = "";
+        for (UserAccount user : usersLiveData.getValue()) {
+            if (user.getUid().equals(userID)) {
+                name = user.getName();
+                break;
+            }
+        }
+        return name;
+    }
+
+    private String getDateFromAppointmentID(String appointmentID) {
+        String date = "";
+        for (Appointment appointment : appointmentsLiveData.getValue()) {
+            if (appointment.getId().equals(appointmentID)) {
+                date = appointment.getDate();
+                break;
+            }
+        }
+        return date;
+    }
+
+    public void addToWaitingList(String userID, String date) {
+        appointmentsWaitListReference.child(userID).setValue(date);
+    }
+    private void deleteFromWaitingList(String userID) {
+        appointmentsWaitListReference.child(userID).removeValue();
+    }
+
+
+
+    public AbstractMap.SimpleEntry<String, String> getAppointmentFromWaitingList(String date) {
+        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
+            if (entry.getValue().equals(date)) {
+                return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
     }
 
     public void updateText(String appointmentID, String text) {

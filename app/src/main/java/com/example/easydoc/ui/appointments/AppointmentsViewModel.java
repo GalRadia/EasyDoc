@@ -42,6 +42,10 @@ public class AppointmentsViewModel extends ViewModel {
         return mText;
     }
 
+    public boolean isDateAvailable(String date) {
+        return repository.dateAvailable(date);
+    }
+
     public void getBusyDates(BusyDaysCallback<List<Calendar>> callback) {
         Query query = databaseReference.orderByChild("date");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -74,6 +78,10 @@ public class AppointmentsViewModel extends ViewModel {
                 callback.onError(databaseError.toException());
             }
         });
+    }
+
+    public void addToWaitingList(String userID, String date) {
+        repository.addToWaitingList(userID, date);
     }
 
     public LiveData<DoctorOffice> getDoctorOffice() {

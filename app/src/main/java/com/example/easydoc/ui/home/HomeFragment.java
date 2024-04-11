@@ -66,8 +66,14 @@ public class HomeFragment extends Fragment {
 
         });
         final TextView textView = binding.textHome;
+        final Button callButton = binding.callButton;
         final Button signOutB = binding.signOutButton;
         final Button navigateToLocation = binding.navigateButton;
+        callButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:054-7800553"));
+            startActivity(intent);
+        });
         navigateToLocation.setOnClickListener(v -> {
             LatLng specificLocation = new LatLng(32.11504612996519, 34.81780814048655);
             NavigateToLocation(specificLocation);

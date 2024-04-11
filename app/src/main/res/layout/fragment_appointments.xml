@@ -79,4 +79,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appointmentTimeLayout" />
+
+    <Button
+        android:id="@+id/waitList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wait List"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_next"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appointmentTimeLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

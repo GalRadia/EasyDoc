@@ -1,13 +1,17 @@
 package com.example.easydoc.ui.appointments;
 
+import android.app.Dialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,6 +23,7 @@ import com.example.easydoc.R;
 import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentAppointmentsBinding;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
@@ -46,14 +51,15 @@ public class AppointmentsFragment extends Fragment {
         View root = binding.getRoot();
         doctorOfficeLiveData = appointmentsViewModel.getDoctorOffice();
         Button nextButton = binding.buttonNext;
-
+        Button waitListButton = binding.waitList;
+        waitListButton.setOnClickListener(v -> addAppointmentToWaitList(appointmentsViewModel));
 
         appointmentDate = binding.appointmentDate;
         appointmentTime = binding.appointmentTime;
         appointmentTime.setEnabled(false);
 
         nextButton.setOnClickListener(v -> {
-            if(!validateText())
+            if (!validateText())
                 return;
             Bundle bundle = new Bundle();
             bundle.putString("appointmentDate", appointmentDate.getText().toString());
@@ -132,7 +138,7 @@ public class AppointmentsFragment extends Fragment {
         int duration = Integer.parseInt(doctorOfficeLiveData.getValue().getAppointmentDuration());
         int currentHourTime = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int currentMinuteTime = Calendar.getInstance().get(Calendar.MINUTE);
-        if(currentMinuteTime>duration)
+        if (currentMinuteTime > duration)
             currentHourTime++;
 
 
@@ -140,13 +146,12 @@ public class AppointmentsFragment extends Fragment {
         Calendar cal = Calendar.getInstance();
         if (cal.get(Calendar.DATE) == Helper.stringToCalendar(appointmentDate.getText().toString()).get(Calendar.DATE)) {
             tpd.setMinTime(currentHourTime, 0, 0);
-            if(currentHourTime>eHour)
-            {
+            if (currentHourTime > eHour) {
                 tpd.setMinTime(sHour, sMinute, 0);
                 tpd.setMaxTime(sHour, sMinute, 0);
                 return tpd;
             }
-        } else{
+        } else {
             tpd.setMinTime(sHour, sMinute, 0);
 
         }
@@ -195,6 +200,23 @@ public class AppointmentsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void addAppointmentToWaitList(AppointmentsViewModel appointmentsViewModel) {
+        android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            String date = dayOfMonth + "/" + (month + 1) + "/" + year;
+            if (appointmentsViewModel.isDateAvailable(date))
+                Toast.makeText(getContext(), "Date is available", Toast.LENGTH_SHORT).show();
+            else {
+                appointmentsViewModel
+                        .addToWaitingList(FirebaseAuth.getInstance().getCurrentUser().getUid(), date);
+                Toast.makeText(getContext(), "Added to waiting list", Toast.LENGTH_SHORT).show();
+            }
+        }, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.setTitle("Select a date to add to waiting list");
+        datePickerDialog.show();
+
+
     }
 
 

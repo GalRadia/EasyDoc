@@ -50,6 +50,7 @@ public class DashboardViewModel extends ViewModel {
     public void updateAppointment(String appointmentID,String text) {
         repository.updateText(appointmentID,text);
     }
+
   public LiveData<Boolean> isDoctor(){
         return repository.getIsDoctorLiveData();
   }
