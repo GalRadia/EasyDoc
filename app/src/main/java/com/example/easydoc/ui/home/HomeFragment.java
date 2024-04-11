@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,11 @@ public class HomeFragment extends Fragment {
         });
         final TextView textView = binding.textHome;
         final Button signOutB = binding.signOutButton;
+        final Button navigateToLocation = binding.navigateButton;
+        navigateToLocation.setOnClickListener(v -> {
+            LatLng specificLocation = new LatLng(32.11504612996519, 34.81780814048655);
+            NavigateToLocation(specificLocation);
+        });
         signOutB.setOnClickListener(v -> {
             AuthUI.getInstance()
                     .signOut(requireContext())
@@ -141,5 +147,10 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+    private void NavigateToLocation(LatLng specificLocation){
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=" + specificLocation.latitude + "," + specificLocation.longitude));
+        startActivity(intent);
+
     }
 }

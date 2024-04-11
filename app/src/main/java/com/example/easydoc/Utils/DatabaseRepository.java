@@ -30,8 +30,10 @@ import java.util.List;
 
 public class DatabaseRepository {
     private static DatabaseRepository instance;
+    private final MutableLiveData<List<Appointment>> passedAppointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> userAppointmentsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<Appointment>> userPassedAppointmentsLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<List<UserAccount>> usersLiveData = new MutableLiveData<>();
     private final DatabaseReference doctorOfficeReference;
@@ -39,19 +41,19 @@ public class DatabaseRepository {
     private final DatabaseReference usersReference;
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
-    private final MutableLiveData<FirebaseUser>currentUserLiveData = new MutableLiveData<>();
+    private final MutableLiveData<FirebaseUser> currentUserLiveData = new MutableLiveData<>();
     private final DatabaseReference userAppointmentsReference;
     private final MutableLiveData<DoctorOffice> doctorOfficeMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isDoctorLiveData = new MutableLiveData<>();
 
 
     private DatabaseRepository() {
-        currentUser= mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         appointmentsReference = database.getReference("appointments");
         usersReference = database.getReference("users");
         doctorOfficeReference = database.getReference("doctor office");
-       // fetchCurrentUser();
+        // fetchCurrentUser();
         userAppointmentsReference = database.getReference("users").child(currentUser.getUid().toString()).child("appointmentsID");
         fetchAppointments();
         fetchUsers();
@@ -76,11 +78,11 @@ public class DatabaseRepository {
     }
 
     private void fetchCurrentUser() {
-    mAuth.addAuthStateListener(firebaseAuth -> currentUserLiveData.postValue(firebaseAuth.getCurrentUser()));
-
+        mAuth.addAuthStateListener(firebaseAuth -> currentUserLiveData.postValue(firebaseAuth.getCurrentUser()));
 
 
     }
+
     public static void destroyInstance() {
         instance = null;
     }
@@ -126,11 +128,15 @@ public class DatabaseRepository {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Appointment> appointments = new ArrayList<>();
+                List<Appointment> passedAppointments = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Appointment appointment = snapshot.getValue(Appointment.class);
-                    appointments.add(appointment);
+                    if (Helper.isAppointmentPassed(appointment.getDate(), appointment.getTime())) {
+                        passedAppointments.add(appointment);
+                    } else appointments.add(appointment);
                 }
                 appointmentsLiveData.postValue(appointments);
+                passedAppointmentsLiveData.postValue(passedAppointments);
             }
 
             @Override
@@ -183,9 +189,17 @@ public class DatabaseRepository {
     public LiveData<List<Appointment>> getAppointmentsFromUser() {
         return userAppointmentsLiveData;
     }
+    public LiveData<List<Appointment>> getPassedAppointmentsLiveData() {
+        return passedAppointmentsLiveData;
+    }
+    public LiveData<List<Appointment>> getUserPassedAppointmentsLiveData() {
+        return userPassedAppointmentsLiveData;
+    }
+
     public LiveData<DoctorOffice> getDoctorOfficeLiveData() {
         return doctorOfficeMutableLiveData;
     }
+
     public LiveData<Boolean> getIsDoctorLiveData() {
         return isDoctorLiveData;
     }
@@ -195,7 +209,7 @@ public class DatabaseRepository {
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     DataSnapshot appointmentsIDSnapshot = userSnapshot.child("appointmentsID");
                     for (DataSnapshot appointmentIdSnapshot : appointmentsIDSnapshot.getChildren()) {
                         if (appointmentIdSnapshot.getValue(String.class).equals(appointmentID)) {
@@ -213,14 +227,14 @@ public class DatabaseRepository {
         });
 
 
-
     }
+
     public void updateText(String appointmentID, String text) {
         appointmentsReference.child(appointmentID).child("text").setValue(text);
     }
 
 
-    public void insertAppointment(Appointment appointment,Context context) {
+    public void insertAppointment(Appointment appointment, Context context) {
         // Generate a unique ID for each appointment
 
         // Insert the appointment into the database
@@ -248,14 +262,18 @@ public class DatabaseRepository {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<Appointment> appointments = new ArrayList<>();
+                List<Appointment> passedAppointments = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     if (appointmentIds.contains(snapshot.getValue(Appointment.class).getId())) {
                         Appointment appointment = snapshot.getValue(Appointment.class);
-                        appointments.add(appointment);
+                        if (Helper.isAppointmentPassed(appointment.getDate(), appointment.getTime())) {
+                            passedAppointments.add(appointment);
+                        } else appointments.add(appointment);
                     }
                 }
                 // Update the LiveData with the filtered list of appointments.
                 userAppointmentsLiveData.postValue(appointments);
+                userPassedAppointmentsLiveData.postValue(passedAppointments);
             }
 
             @Override
@@ -281,6 +299,7 @@ public class DatabaseRepository {
                     }
                 });
     }
+
     public void fetchCurrentUserDoctor() {
         usersReference.child(currentUser.getUid()).child("doctor").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -297,7 +316,8 @@ public class DatabaseRepository {
         });
     }
 
-    private void removePassedAppointments(){
+
+    private void removePassedAppointments() {
         appointmentsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -322,7 +342,7 @@ public class DatabaseRepository {
     }
 
     public void setCurrentUser() {
-        currentUser=mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
 
     }
 

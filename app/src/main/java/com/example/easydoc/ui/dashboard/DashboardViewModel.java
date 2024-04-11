@@ -19,7 +19,7 @@ public class DashboardViewModel extends ViewModel {
 
     public DashboardViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("Passed Appointments");
         repository = DatabaseRepository.getInstance();
     }
 
@@ -33,6 +33,12 @@ public class DashboardViewModel extends ViewModel {
     public LiveData<List<UserAccount>> getUsers() {
         return repository.getUsersLiveData();
     }
+    public LiveData<List<Appointment>> getPassedAppointments() {
+        return repository.getPassedAppointmentsLiveData();
+    }
+    public LiveData<List<Appointment>> getPassedAppointmentFromUser() {
+        return repository.getUserPassedAppointmentsLiveData();
+    }
 
     public LiveData<String> getText() {
         return mText;
@@ -40,6 +46,7 @@ public class DashboardViewModel extends ViewModel {
     public void removeAppointment(String appointmentID) {
         repository.removeAppointment(appointmentID);
     }
+
     public void updateAppointment(String appointmentID,String text) {
         repository.updateText(appointmentID,text);
     }

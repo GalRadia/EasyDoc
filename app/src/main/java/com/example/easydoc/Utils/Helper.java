@@ -1,6 +1,7 @@
 package com.example.easydoc.Utils;
 
 import android.icu.text.SimpleDateFormat;
+import android.provider.CalendarContract;
 
 import androidx.annotation.NonNull;
 
@@ -34,6 +35,7 @@ public class Helper {
         return calendar;
     }
 
+
     public static Timepoint stringToTimepoint(String timepointString) {
         int hourse = Integer.parseInt(timepointString.split(":")[0]);
         int minutes = Integer.parseInt(timepointString.split(":")[1]);
@@ -48,12 +50,9 @@ public class Helper {
 
     public static boolean isAppointmentPassed(String date, String time) {
         Calendar today = Calendar.getInstance();
-        if (today.after(stringToCalendar(date))) {
-            return true;
-        } else if (today.equals(stringToCalendar(date))) {
-            Timepoint timepoint = stringToTimepoint(time);
-            return today.get(Calendar.HOUR_OF_DAY) > timepoint.getHour() || (today.get(Calendar.HOUR_OF_DAY) == timepoint.getHour() && today.get(Calendar.MINUTE) > timepoint.getMinute());
-        }
-        return false;
+        Calendar apppointmentDate = stringToCalendar(date);
+        apppointmentDate.set(Calendar.HOUR_OF_DAY, stringToTimepoint(time).getHour());
+        apppointmentDate.set(Calendar.MINUTE, stringToTimepoint(time).getMinute());
+        return today.after(apppointmentDate);
     }
 }
