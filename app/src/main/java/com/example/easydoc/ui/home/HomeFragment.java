@@ -31,8 +31,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    private MapView mapView;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
+    private MapView mapView;
+    private  TextView textView;
+    private  Button callButton;
+    private  Button signOutB;
+    private  Button navigateToLocation;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,7 +46,15 @@ public class HomeFragment extends Fragment {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        mapView= binding.mapView;
+        SetupUI();
+        InitUI();
+        InitMap(savedInstanceState);
+
+        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        return root;
+    }
+
+    private void InitMap(Bundle savedInstanceState) {
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -65,33 +77,8 @@ public class HomeFragment extends Fragment {
             // Replace with your desired coordinates
 
         });
-        final TextView textView = binding.textHome;
-        final Button callButton = binding.callButton;
-        final Button signOutB = binding.signOutButton;
-        final Button navigateToLocation = binding.navigateButton;
-        callButton.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:054-7800553"));
-            startActivity(intent);
-        });
-        navigateToLocation.setOnClickListener(v -> {
-            LatLng specificLocation = new LatLng(32.11504612996519, 34.81780814048655);
-            NavigateToLocation(specificLocation);
-        });
-        signOutB.setOnClickListener(v -> {
-            AuthUI.getInstance()
-                    .signOut(requireContext())
-                    .addOnCompleteListener(task -> {
-
-                        Intent intent = new Intent(requireContext(), FirebaseUIActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        requireActivity().recreate();
-                    });
-        });
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-        return root;
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -154,9 +141,41 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-    private void NavigateToLocation(LatLng specificLocation){
+
+    private void NavigateToLocation(LatLng specificLocation) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=" + specificLocation.latitude + "," + specificLocation.longitude));
         startActivity(intent);
 
+    }
+
+    public void SetupUI() {
+        mapView = binding.mapView;
+        textView = binding.textHome;
+        callButton = binding.callButton;
+        signOutB = binding.signOutButton;
+        navigateToLocation = binding.navigateButton;
+    }
+
+    private void InitUI() {
+        callButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:054-7800553"));
+            startActivity(intent);
+        });
+        navigateToLocation.setOnClickListener(v -> {
+            LatLng specificLocation = new LatLng(32.11504612996519, 34.81780814048655);
+            NavigateToLocation(specificLocation);
+        });
+        signOutB.setOnClickListener(v -> {
+            AuthUI.getInstance()
+                    .signOut(requireContext())
+                    .addOnCompleteListener(task -> {
+
+                        Intent intent = new Intent(requireContext(), FirebaseUIActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        requireActivity().recreate();
+                    });
+        });
     }
 }

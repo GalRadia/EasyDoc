@@ -22,6 +22,13 @@ public class Appointment implements Comparable<Appointment> {
     public Appointment(){
 
     }
+    public Appointment(Appointment appointment) {
+        this.id = UUID.randomUUID().toString();
+        this.date = appointment.getDate();
+        this.time = appointment.getTime();
+        this.text = appointment.getText();
+        this.name = appointment.getName();
+    }
 
     public String getDate() {
         return date;
@@ -60,6 +67,22 @@ public class Appointment implements Comparable<Appointment> {
 
     @Override
     public int compareTo(Appointment appointment) {
-        return this.getDate().compareTo(appointment.getDate());
+        int day= Integer.parseInt(this.date.split("/")[0]);
+        int month= Integer.parseInt(this.date.split("/")[1]);
+        int oDay= Integer.parseInt(appointment.getDate().split("/")[0]);
+        int oMonth= Integer.parseInt(appointment.getDate().split("/")[1]);
+        if(month>oMonth){
+            return -1;
+        }else if(month<oMonth){
+            return 1;
+        }else{
+            if(day>oDay){
+                return -1;
+            }else if(day<oDay){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -13,6 +14,8 @@ import androidx.navigation.Navigation;
 
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
+import com.example.easydoc.Model.Due;
+import com.example.easydoc.Model.Repeat;
 import com.example.easydoc.R;
 import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.Utils.Helper;
@@ -31,8 +34,10 @@ import java.util.Calendar;
 public class AppointmentNextFragment extends Fragment {
     private FragmentAppointmentNextBinding binding;
     private FirebaseAuth mAuth;
-    private DatabaseRepository repository;
     private AppointmentsViewModel appointmentsViewModel;
+    private MaterialButton button;
+    private Slider slider;
+    private TextInputEditText message;
 
     public AppointmentNextFragment() {
         // Required empty public constructor
@@ -43,81 +48,59 @@ public class AppointmentNextFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         appointmentsViewModel = new ViewModelProvider(requireActivity()).get(AppointmentsViewModel.class);
-        repository = DatabaseRepository.getInstance();
-        Calendar c = Calendar.getInstance();
         binding = FragmentAppointmentNextBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        MaterialButton button = binding.finishB;
-        Slider slider = binding.seekBar;
-        TextInputEditText message = binding.editMessage;
-//        TextInputEditText date= appointmentsBinding.appointmentDate;
-//        TextInputEditText time= appointmentsBinding.appointmentTime;
-        Bundle saveInstance = getArguments();
-        String t = saveInstance.getString("appointmentTime");
-        String d = saveInstance.getString("appointmentDate");
-
-
-        mAuth = FirebaseAuth.getInstance();
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference userRef = mDatabase.child("users").child(user.getUid());
-        button.setOnClickListener(view -> {
-            Appointment appointment = new Appointment(d, t, message.getText().toString(), user.getDisplayName());
-//            userRef.child("appointmentsID").addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    List<String> appointmentsID = new ArrayList<>();
-//                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-//                        if (postSnapshot.exists())
-//                            appointmentsID.add(postSnapshot.getValue().toString());
-//                    }
-//                    appointmentsID.add(appointment.getId());
-//                    userRef.child("appointmentsID").setValue(appointmentsID);
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                    // Getting Post failed, log a message
-//                    Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
-//                }
-//            });
-            repository.insertAppointment(appointment, getContext());
-//            Calendar cal = Calendar.getInstance();
-//            Intent intent = new Intent(Intent.ACTION_EDIT);
-//            intent.setType("vnd.android.cursor.item/event");
-//            intent.putExtra("beginTime", cal.getTimeInMillis());
-//            intent.putExtra("allDay", true);
-//            intent.putExtra("rrule", "FREQ=YEARLY");
-//            intent.putExtra("endTime", cal.getTimeInMillis()+60*60*1000);
-//            intent.putExtra("title", "A Test Event from android app");
-//            startActivity(intent);
-            addToCalanderIntent(appointment);
-            //mDatabase.child("appointments").child(appointment.getId()).setValue(appointment);
-            Navigation.findNavController(root).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);
-        });
-
-
-        // Inflate the layout for this fragment
-
+        SetupUI();
+        InitUI();
         return root;
 
     }
 
+    private void InitUI() {
+        Bundle saveInstance = getArguments();
+        String t = saveInstance.getString("appointmentTime");
+        String d = saveInstance.getString("appointmentDate");
+        int repreat = saveInstance.getInt("recurrent");
+        int duration = saveInstance.getInt("duration");
+        Repeat repeat = Repeat.values()[repreat];
+        Due due = Due.values()[duration];
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        button.setOnClickListener(view -> {
+            Appointment appointment = new Appointment(d, t, message.getText().toString(), user.getDisplayName());
+            try {
+                appointmentsViewModel.addAppointment(appointment, repeat, due);
+                Toast.makeText(getContext(), getString(R.string.appointment_added), Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getContext(), getString(R.string.appointment_failed), Toast.LENGTH_LONG).show();
+            }
+            addToCalanderIntent(appointment);
+            Navigation.findNavController(requireView()).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);
+        });
+    }
+
+    private void SetupUI() {
+        button = binding.finishB;
+        slider = binding.seekBar;
+        message = binding.editMessage;
+    }
+
+
     private void addToCalanderIntent(Appointment appointment) {
-        DoctorOffice doctorOffice=appointmentsViewModel.getDoctorOffice().getValue();
+        DoctorOffice doctorOffice = appointmentsViewModel.getDoctorOffice().getValue();
         Calendar c = Helper.stringToCalendar(appointment.getDate());
         c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(appointment.getTime().split(":")[0]));
         c.set(Calendar.MINUTE, Integer.parseInt(appointment.getTime().split(":")[1]));
         Intent intent = new Intent(Intent.ACTION_INSERT)
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, c.getTimeInMillis())
-                .putExtra(CalendarContract.Events.TITLE, "Appointment with " )
+                .putExtra(CalendarContract.Events.TITLE, "Appointment with ")
                 .putExtra(CalendarContract.Events.DESCRIPTION, appointment.getText())
                 .putExtra(CalendarContract.Events.EVENT_LOCATION, doctorOffice.getAddress())
                 .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY)
                 .putExtra(CalendarContract.Events.DURATION, doctorOffice.getAppointmentDuration())
                 .putExtra(CalendarContract.Events.HAS_ALARM, 1)
-                .putExtra(CalendarContract.Events.ALLOWED_REMINDERS,1)
+                .putExtra(CalendarContract.Events.ALLOWED_REMINDERS, 1)
                 .putExtra(Intent.EXTRA_EMAIL, mAuth.getCurrentUser().getEmail());
         startActivity(intent);
     }

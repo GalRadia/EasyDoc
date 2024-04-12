@@ -1,17 +1,13 @@
 package com.example.easydoc.ui.appointments;
 
-import android.app.Dialog;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,10 +15,15 @@ import androidx.navigation.Navigation;
 
 import com.example.easydoc.Interfaces.BusyDaysCallback;
 import com.example.easydoc.Model.DoctorOffice;
+import com.example.easydoc.Model.Due;
+import com.example.easydoc.Model.Repeat;
 import com.example.easydoc.R;
 import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentAppointmentsBinding;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -32,13 +33,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+
 public class AppointmentsFragment extends Fragment {
 
     private FragmentAppointmentsBinding binding;
     private TextInputEditText appointmentDate;
     private TextInputEditText appointmentTime;
+    private TextInputLayout appointmentTimeLayout;
+    private TextInputLayout appointmentDateLayout;
     private TimePickerDialog tpd;
     private DatePickerDialog dpd;
+    private MaterialButton onceAweek;
+    private Button nextButton;
+    private Button waitListButton;
+    private MaterialButton once2Weeks;
+    private MaterialButton noRepeat;
+    private MaterialButton month;
+    private MaterialButton twoMonths;
+    private MaterialButtonToggleGroup durationToggleGroup;
+   private MaterialButtonToggleGroup repeatToggleGroup;
     private LiveData<DoctorOffice> doctorOfficeLiveData;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -50,12 +63,26 @@ public class AppointmentsFragment extends Fragment {
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         doctorOfficeLiveData = appointmentsViewModel.getDoctorOffice();
-        Button nextButton = binding.buttonNext;
-        Button waitListButton = binding.waitList;
-        waitListButton.setOnClickListener(v -> addAppointmentToWaitList(appointmentsViewModel));
+        SetupUI();
+        InitUI(appointmentsViewModel, root);
 
-        appointmentDate = binding.appointmentDate;
-        appointmentTime = binding.appointmentTime;
+        return root;
+    }
+
+    private void InitUI(AppointmentsViewModel appointmentsViewModel, View root) {
+        waitListButton.setOnClickListener(v -> addAppointmentToWaitList(appointmentsViewModel));
+        repeatToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.OnceWeek || checkedId == R.id.Once2Weeks) {
+                    durationToggleGroup.setVisibility(View.VISIBLE);
+                    month.setChecked(true);
+                } else {
+                    durationToggleGroup.clearChecked();
+                    durationToggleGroup.setVisibility(View.GONE);
+                }
+            }
+        });
+
         appointmentTime.setEnabled(false);
 
         nextButton.setOnClickListener(v -> {
@@ -64,6 +91,8 @@ public class AppointmentsFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("appointmentDate", appointmentDate.getText().toString());
             bundle.putString("appointmentTime", appointmentTime.getText().toString());
+            bundle.putInt("recurrent", getRepeat().ordinal());
+            bundle.putInt("duration", getDuration().ordinal());
             Navigation.findNavController(root).navigate(R.id.action_navigation_appointments_to_appointmentNextFragment, bundle);
         });
 
@@ -73,6 +102,7 @@ public class AppointmentsFragment extends Fragment {
                     this.tpd = new TimePickerDialog();
                     this.tpd = initializeTimePicker();
                     appointmentTime.setEnabled(true);
+                    appointmentDateLayout.setError(null);
 
                     appointmentsViewModel.getBusyDates(new BusyDaysCallback<List<Calendar>>() {
                         @Override
@@ -94,26 +124,57 @@ public class AppointmentsFragment extends Fragment {
             this.dpd = initializeDatePicker();
             this.tpd = new TimePickerDialog();
             this.tpd = initializeTimePicker();
+            appointmentTimeLayout.setError(null);
             String date = appointmentDate.getText().toString();
             Timepoint[] disabledTimes = appointmentsViewModel.getDisabledTimepointsFromDate(date);
             tpd.setDisabledTimes(disabledTimes);
-
             tpd.show(getParentFragmentManager(), "Timepickerdialog");
 
 
         });
-
-        return root;
     }
+
+    private void SetupUI() {
+        appointmentTimeLayout= binding.appointmentTimeLayout;
+        appointmentDateLayout = binding.appointmentDateLayout;
+        nextButton = binding.buttonNext;
+        waitListButton = binding.waitList;
+        repeatToggleGroup = binding.repeatToggleGroup;
+        onceAweek = binding.OnceWeek;
+        once2Weeks = binding.Once2Weeks;
+        durationToggleGroup = binding.DueToggleGroup;
+        noRepeat = binding.noRepeat;
+        appointmentDate = binding.appointmentDate;
+        appointmentTime = binding.appointmentTime;
+        month = binding.month;
+        twoMonths = binding.twoMonths;
+    }
+
+    private Due getDuration() {
+        if (month.isChecked())
+            return Due.ONE_MONTH;
+        if (twoMonths.isChecked())
+            return Due.TWO_MONTHS;
+        return Due.NONE;
+    }
+
+    private Repeat getRepeat() {
+        if (onceAweek.isChecked())
+            return Repeat.ONCE_A_WEEK;
+        if (once2Weeks.isChecked())
+            return Repeat.ONCE_TWO_WEEKS;
+        return Repeat.NO_REPEAT;
+    }
+
 
     private boolean validateText() {
         if (appointmentDate.getText().toString().isEmpty()) {
-            appointmentDate.setError("Please select a date");
             Toast.makeText(getContext(), "Please select a date", Toast.LENGTH_SHORT).show();
+            appointmentDateLayout.setError("Please select a time");
             return false;
         }
         if (appointmentTime.getText().toString().isEmpty()) {
-            appointmentTime.setError("Please select a time");
+            appointmentTimeLayout.setError("Please select a time");
             Toast.makeText(getContext(), "Please select a time", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -175,17 +236,22 @@ public class AppointmentsFragment extends Fragment {
         );
 
         dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
-            appointmentDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+            if (monthOfYear < 9)
+                appointmentDate.setText(dayOfMonth + "/0" + (monthOfYear + 1) + "/" + year);
+            else appointmentDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+            appointmentTime.setText("");
+
         });
+        DoctorOffice doc = this.doctorOfficeLiveData.getValue();
         dpd.setMinDate(Calendar.getInstance());
         Calendar maxDate = Calendar.getInstance();
-        maxDate.add(Calendar.MONTH, 1);
+        maxDate.add(Calendar.MONTH, Integer.parseInt(doc.getMonthsInAdvance()));
         dpd.setMaxDate(maxDate);
         Calendar calendar = Calendar.getInstance();
         List<Calendar> disabledDays = new ArrayList<>();
         calendar.add(Calendar.DAY_OF_MONTH, 1); // Start from tomorrow
-
-        for (int i = 0; i < 30; i++) {
+        int days = Integer.parseInt(doc.getMonthsInAdvance()) * 31;
+        for (int i = 0; i < days; i++) {
             if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
                 disabledDays.add((Calendar) calendar.clone());
             }

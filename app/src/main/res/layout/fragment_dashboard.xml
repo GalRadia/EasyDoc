@@ -8,20 +8,20 @@
 
     <TextView
         android:id="@+id/text_dashboard"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
         android:textAlignment="center"
         android:textSize="20sp"
-        tools:text="Passed Appointments"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/showWaitList"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Passed Appointments" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -46,4 +46,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_dashboard"
         tools:listitem="@layout/horizontal_appointment_info_item" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/showWaitList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="13dp"
+        android:text="Show\n Wait List"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerViewPassedAppointments"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

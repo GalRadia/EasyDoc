@@ -54,4 +54,7 @@ public class DashboardViewModel extends ViewModel {
   public LiveData<Boolean> isDoctor(){
         return repository.getIsDoctorLiveData();
   }
+  public List<String> getWaitlistDates(){
+        return repository.getWailistDatesFromCurrentUser();
+  }
 }

@@ -1,23 +1,16 @@
 package com.example.easydoc.Utils;
 
-import android.content.Context;
-import android.util.Log;
-import android.util.Pair;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.easydoc.Interfaces.DoctorCheckCallback;
-import com.example.easydoc.MainActivity;
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
+import com.example.easydoc.Model.Due;
+import com.example.easydoc.Model.Repeat;
 import com.example.easydoc.Model.UserAccount;
-import com.example.easydoc.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +22,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -239,7 +234,7 @@ public class DatabaseRepository {
     }
 
     public void removeAppointment(String appointmentID) {
-        String date=getDateFromAppointmentID(appointmentID);
+        String date = getDateFromAppointmentID(appointmentID);
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -273,20 +268,22 @@ public class DatabaseRepository {
 
 
     }
-    public boolean dateAvailable(String date){
-        int count=0;
+
+    public boolean dateAvailable(String date) {
+        int count = 0;
         for (Appointment appointment : appointmentsLiveData.getValue()) {
             if (appointment.getDate().equals(date)) {
                 count++;
             }
         }
-        return count<appointmentsInDay();
+        return count < appointmentsInDay();
     }
-    public int appointmentsInDay(){
-        int duration= Integer.parseInt(doctorOfficeMutableLiveData.getValue().getAppointmentDuration());
-        int startHour=Integer.parseInt(doctorOfficeMutableLiveData.getValue().getStartTime().split(":")[0]);
-        int endHour=Integer.parseInt(doctorOfficeMutableLiveData.getValue().getEndTime().split(":")[0]);
-         return (endHour-startHour)*60/duration;
+
+    public int appointmentsInDay() {
+        int duration = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getAppointmentDuration());
+        int startHour = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getStartTime().split(":")[0]);
+        int endHour = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getEndTime().split(":")[0]);
+        return (endHour - startHour) * 60 / duration;
     }
 
     private String getNameFromUserID(String userID) {
@@ -314,10 +311,10 @@ public class DatabaseRepository {
     public void addToWaitingList(String userID, String date) {
         appointmentsWaitListReference.child(userID).setValue(date);
     }
+
     private void deleteFromWaitingList(String userID) {
         appointmentsWaitListReference.child(userID).removeValue();
     }
-
 
 
     public AbstractMap.SimpleEntry<String, String> getAppointmentFromWaitingList(String date) {
@@ -334,26 +331,85 @@ public class DatabaseRepository {
     }
 
 
-    public void insertAppointment(Appointment appointment, Context context) {
-        // Generate a unique ID for each appointment
+    public void insertAppointment(Appointment appointment, Repeat repeat, Due due) throws RuntimeException{
+        // Calculate the initial due date based on the specified Due enum
+        Calendar dueCalendar;
+        dueCalendar = Helper.stringToCalendar(appointment.getDate());
+        dueCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(appointment.getTime().split(":")[0]));
+        dueCalendar.set(Calendar.MINUTE, Integer.parseInt(appointment.getTime().split(":")[1]));
+        // Assuming Appointment has a Date field
 
-        // Insert the appointment into the database
-        appointmentsReference.child(appointment.getId()).setValue(appointment)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(context, R.string.appointment_added, Toast.LENGTH_SHORT).show();
-                    // Handle success
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(context, R.string.appointment_failed, Toast.LENGTH_SHORT).show();
-                    // Handle failure
-                });
+        // Adjust the due date based on the selection
+        switch (due) {
+            case ONE_MONTH:
+                dueCalendar.add(Calendar.MONTH, 1);
+                break;
+            case TWO_MONTHS:
+                dueCalendar.add(Calendar.MONTH, 2);
+                break;
+        }
+
+        Date dueDate = dueCalendar.getTime();
+
+        // Initialize repeat interval
+        int repeatIntervalDays = 0;
+        switch (repeat) {
+            case ONCE_A_WEEK:
+                repeatIntervalDays = 7;
+                break;
+            case ONCE_TWO_WEEKS:
+                repeatIntervalDays = 14;
+                break;
+            case NO_REPEAT:
+                // No additional appointments needed, just insert the initial one
+                try {
+                    saveAppointment(appointment, appointment.getDate());
+                } catch (RuntimeException e) {
+                    // Handle error
+                    throw new RuntimeException("Failed to save appointment");
+                }
+                return;
+        }
+
+        // Handle repeat logic
+        Calendar repeatCalendar = Helper.stringToCalendar(appointment.getDate());
+        while (repeatCalendar.getTime().before(dueDate)) {
+            String newDate = Helper.calendarToString(repeatCalendar);
+            if (isDateAndTimeAvailable(newDate, appointment.getTime())) {
+                try {
+                    saveAppointment(appointment, newDate);
+                } catch (RuntimeException e) {
+                    // Handle error
+                    throw new RuntimeException("Failed to save appointment");
+                }
+            } else addToWaitingList(currentUser.getUid(), newDate);
+            repeatCalendar.add(Calendar.DAY_OF_YEAR, repeatIntervalDays);
+        }
+    }
+
+    private boolean isDateAndTimeAvailable(String date, String time) {
+        for (Appointment appointment : appointmentsLiveData.getValue()) {
+            if (appointment.getDate().equals(date) && appointment.getTime().equals(time)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void saveAppointment(Appointment appointment, String appointmentDate) throws RuntimeException {
+        Appointment newAppointment = new Appointment(appointment); // Assuming you have a copy constructor or method to duplicate
+        newAppointment.setDate(appointmentDate);
+
+        appointmentsReference.child(newAppointment.getId()).setValue(newAppointment).addOnFailureListener(e -> {
+            // Handle error
+            throw new RuntimeException("Failed to save appointment");
+        });
+
+
         assert currentUser != null;
-        usersReference.child(currentUser.getUid()).child("appointmentsID").push().setValue(appointment.getId())
-                .addOnSuccessListener(aVoid -> {
-                    // Handle success
-                })
+        usersReference.child(currentUser.getUid()).child("appointmentsID").push().setValue(newAppointment.getId())
                 .addOnFailureListener(e -> {
-                    // Handle failure
+                    throw new RuntimeException("Failed to save appointment");
                 });
     }
 
@@ -441,9 +497,15 @@ public class DatabaseRepository {
 
     }
 
-    public void setCurrentUser() {
-        currentUser = mAuth.getCurrentUser();
 
+    public List<String> getWailistDatesFromCurrentUser() {
+        List<String> dates = new ArrayList<>();
+        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
+            if (entry.getKey().equals(currentUser.getUid())) {
+                dates.add(entry.getValue());
+            }
+        }
+        return dates;
     }
 
 

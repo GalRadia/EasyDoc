@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel;
 import com.example.easydoc.Interfaces.BusyDaysCallback;
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
+import com.example.easydoc.Model.Due;
+import com.example.easydoc.Model.Repeat;
 import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.Utils.Helper;
 import com.google.firebase.database.DataSnapshot;
@@ -109,6 +111,9 @@ public class AppointmentsViewModel extends ViewModel {
         }
 
         return disabledTimepoints.toArray(new Timepoint[0]);
+    }
+    public void addAppointment(Appointment appointment, Repeat repeat, Due due) {
+        repository.insertAppointment(appointment, repeat, due);
     }
 
 
