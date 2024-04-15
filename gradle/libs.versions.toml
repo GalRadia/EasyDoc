@@ -6,6 +6,7 @@ firebaseBom = "32.7.4"
 firebaseDatabase = "20.3.1"
 firebaseMessaging = "23.4.1"
 firebaseUiAuth = "8.0.2"
+glide = "4.16.0"
 googleServices = "4.4.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -26,6 +27,7 @@ playServicesAuth = "20.7.0"
 playServicesMaps = "18.2.0"
 secretsGradlePlugin = "2.0.1"
 gms = "4.4.1"
+legacySupportV4 = "1.0.0"
 
 
 [libraries]
@@ -35,6 +37,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-ui-auth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -55,6 +58,7 @@ navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -9,8 +9,8 @@ public class UserAccount extends User{
     List<String> appointmentsList;
     boolean isDoctor;
 
-    public UserAccount(String uid, String name, String email, String phoneNumber, String dateOfBirth,String deviceToken, boolean isDoctor) {
-        super(uid, name, email, phoneNumber, dateOfBirth,deviceToken);
+    public UserAccount(String uid, String name, String email, String phoneNumber, String dateOfBirth , boolean isDoctor) {
+        super(uid, name, email, phoneNumber, dateOfBirth);
         appointmentsList = new ArrayList<>();
         this.isDoctor = isDoctor;
     }

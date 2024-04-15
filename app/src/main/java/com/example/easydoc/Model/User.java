@@ -6,15 +6,13 @@ public abstract class User {
     private String email;
     private String phone;
     private  String dateOfBirth;
-    private String deviceToken;
 
-    public User(String uid, String name, String email,String phone, String dateOfBirth, String deviceToken) {
+    public User(String uid, String name, String email,String phone, String dateOfBirth) {
         this.uid = uid;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.dateOfBirth = dateOfBirth;
-        this.deviceToken = deviceToken;
     }
     public User(){
 
@@ -60,7 +58,5 @@ public abstract class User {
     public String getDateOfBirth() {
         return dateOfBirth;
     }
-    public String getDeviceToken() {
-        return deviceToken;
-    }
+
 }

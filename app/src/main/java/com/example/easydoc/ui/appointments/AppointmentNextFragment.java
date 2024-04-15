@@ -17,7 +17,6 @@ import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Model.Due;
 import com.example.easydoc.Model.Repeat;
 import com.example.easydoc.R;
-import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentAppointmentNextBinding;
 import com.google.android.material.button.MaterialButton;
@@ -25,8 +24,6 @@ import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 
@@ -81,7 +78,6 @@ public class AppointmentNextFragment extends Fragment {
 
     private void SetupUI() {
         button = binding.finishB;
-        slider = binding.seekBar;
         message = binding.editMessage;
     }
 
@@ -95,12 +91,15 @@ public class AppointmentNextFragment extends Fragment {
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, c.getTimeInMillis())
                 .putExtra(CalendarContract.Events.TITLE, "Appointment with ")
-                .putExtra(CalendarContract.Events.DESCRIPTION, appointment.getText())
                 .putExtra(CalendarContract.Events.EVENT_LOCATION, doctorOffice.getAddress())
+                .putExtra(CalendarContract.Events.DESCRIPTION, appointment.getText())
                 .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY)
                 .putExtra(CalendarContract.Events.DURATION, doctorOffice.getAppointmentDuration())
                 .putExtra(CalendarContract.Events.HAS_ALARM, 1)
                 .putExtra(CalendarContract.Events.ALLOWED_REMINDERS, 1)
+                .putExtra(CalendarContract.Reminders.MINUTES, 15)
+                .putExtra(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT)
+
                 .putExtra(Intent.EXTRA_EMAIL, mAuth.getCurrentUser().getEmail());
         startActivity(intent);
     }

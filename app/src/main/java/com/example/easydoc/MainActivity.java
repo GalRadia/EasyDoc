@@ -2,6 +2,7 @@ package com.example.easydoc;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -23,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private ActivityMainBinding binding;
-    private boolean mLocationPermissionGranted ;
+    private boolean mLocationPermissionGranted;
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -48,6 +50,16 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
+        DatabaseRepository repo=DatabaseRepository.getInstance();
+        LiveData<Boolean> isDoctor=repo.getIsDoctorLiveData();
+        isDoctor.observe(this, aBoolean -> {
+            if(aBoolean){
+                navView.getMenu().findItem(R.id.nested_appointments).setTitle("Office");
+                navView.getMenu().findItem(R.id.nested_appointments).setIcon(R.drawable.health_ic);
+
+            }
+        });
+
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.nested_appointments)
@@ -55,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-      //  askNotificationPermission();
+        //  askNotificationPermission();
 
     }
 
@@ -66,12 +78,12 @@ public class MainActivity extends AppCompatActivity {
             mLocationPermissionGranted = true;
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
 
         if (!mLocationPermissionGranted) {
-            String message="Error loading Navigation SDK: "
+            String message = "Error loading Navigation SDK: "
                     + "The user has not granted location permission.";
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             return true;
@@ -82,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        DatabaseRepository.destroyInstance();
+       // DatabaseRepository.destroyInstance();
     }
 
     @Override
@@ -90,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
+
     private void askNotificationPermission() {
         // This is only necessary for API level >= 33 (TIRAMISU)
 
@@ -108,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
@@ -123,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 
 }

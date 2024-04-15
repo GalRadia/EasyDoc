@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="?attr/actionBarSize"
     tools:context=".ui.dashboard.DashboardFragment">
 
     <TextView
@@ -27,20 +28,23 @@
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="24dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@+id/text_dashboard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/upcomming_appointments"
         tools:listitem="@layout/horizontal_appointment_info_item" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPassedAppointments"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,4 +61,15 @@
         app:layout_constraintBottom_toTopOf="@+id/recyclerViewPassedAppointments"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
+
+    <TextView
+        android:id="@+id/upcomming_appointments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upcomming Appointments"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

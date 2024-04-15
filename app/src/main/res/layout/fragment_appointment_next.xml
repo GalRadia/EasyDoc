@@ -11,94 +11,48 @@
         android:layout_height="match_parent"
         tools:context=".ui.appointments.AppointmentNextFragment">
 
-        <com.google.android.material.slider.Slider
-            android:id="@+id/seekBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="24dp"
-            android:contentDescription="Seekbar"
-            android:soundEffectsEnabled="true"
-            android:stepSize="10"
-            android:valueFrom="0"
-            android:valueTo="120"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editMessageLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/seekBar">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Input whatever" />
+                android:hint="Input whatever"
+                android:lines="6" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="176dp"
-            android:layout_marginTop="32dp"
-            android:text="TextView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editMessageLayout" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/finishB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="160dp"
-            android:layout_marginTop="28dp"
-            android:text="Button"
+            android:layout_marginTop="32dp"
+            android:text="Add appointment"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/swtich" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleGroup"
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swtich"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="176dp"
-            android:layout_marginTop="20dp"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            app:checkedButton="@id/button1"
+            android:layout_marginTop="32dp"
+            android:text="Add to calendar"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/finishB">
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button3"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="nothing" />
+            app:layout_constraintTop_toBottomOf="@+id/editMessageLayout" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button1"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusedByDefault="true"
-                android:text="default" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/navigateButton"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="google" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

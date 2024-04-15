@@ -10,7 +10,7 @@ public class SortedListComperator extends SortedList.Callback<Appointment> {
 
     @Override
     public int compare(Appointment o1, Appointment o2) {
-        return o2.compareTo(o1);
+        return o1.compareTo(o2);
     }
 
     @Override

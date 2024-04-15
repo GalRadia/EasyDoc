@@ -7,10 +7,10 @@
     android:layout_height="match_parent"
     tools:context=".FirebaseUIActivity">
 
-<com.airbnb.lottie.LottieAnimationView
-    android:id="@+id/animationView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+
+
+
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/editNameLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

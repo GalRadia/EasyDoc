@@ -4,6 +4,7 @@ public class DoctorOffice {
     String startTime;
     String endTime;
     String appointmentDuration;
+    String doctorName;
     String address;
     String phone;
     String email;
@@ -11,7 +12,7 @@ public class DoctorOffice {
     String monthsInAdvance;
 
 
-    public DoctorOffice(String address, String name, String phone,String email, String startTime, String endTime, String appointmentDuration, String monthsInAdvance) {
+    public DoctorOffice(String address, String name,String doctorName ,String phone,String email, String startTime, String endTime, String appointmentDuration, String monthsInAdvance) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.appointmentDuration = appointmentDuration;
@@ -20,8 +21,18 @@ public class DoctorOffice {
         this.email = email;
         this.name = name;
         this.monthsInAdvance = monthsInAdvance;
+        this.doctorName = doctorName;
 
 
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public DoctorOffice setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+        return this;
     }
 
     public String getName() {

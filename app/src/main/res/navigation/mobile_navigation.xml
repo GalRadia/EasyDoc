@@ -21,7 +21,7 @@
         <fragment
             android:id="@+id/appointmentNextFragment"
             android:name="com.example.easydoc.ui.appointments.AppointmentNextFragment"
-            android:label="fragment_appointment_next"
+            android:label="@string/title_appointments"
             tools:layout="@layout/fragment_appointment_next">
             <action
                 android:id="@+id/action_appointmentNextFragment_to_navigation_appointments"
@@ -52,7 +52,15 @@
                 android:name="appointmentTime"
                 app:argType="string"
                 app:nullable="true" />
+            <action
+                android:id="@+id/action_navigation_appointments_to_settingsFragment"
+                app:destination="@id/settingsFragment" />
         </fragment>
+        <fragment
+            android:id="@+id/settingsFragment"
+            android:name="com.example.easydoc.ui.settings.SettingsFragment"
+            android:label="@string/title_settings"
+            tools:layout="@layout/fragment_settings" />
     </navigation>
 
 </navigation>

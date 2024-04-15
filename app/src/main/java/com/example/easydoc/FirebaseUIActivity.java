@@ -8,17 +8,16 @@ import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.databinding.ActivityFirebaseUiactivityBinding;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -30,7 +29,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class FirebaseUIActivity extends AppCompatActivity {
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private LottieAnimationView animationView;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -58,8 +57,6 @@ public class FirebaseUIActivity extends AppCompatActivity {
         binding = ActivityFirebaseUiactivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mAuth = FirebaseAuth.getInstance();
-        askNotificationPermission();
-
         setupUI();
         checkCurrentUser();
     }
@@ -68,6 +65,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
         binding.signOutButton.setOnClickListener(v -> signOut());
         binding.editDate.setOnClickListener(v -> showDatePickerDialog());
         binding.saveButton.setOnClickListener(v -> attemptSaveUserInformation());
+
     }
 
     private void checkCurrentUser() {
@@ -78,6 +76,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
             updateUserUI(currentUser);
             checkIsUserExist(currentUser.getUid());
         }
+
     }
 
     private void createSignInIntent() {
@@ -193,23 +192,15 @@ public class FirebaseUIActivity extends AppCompatActivity {
         }
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful() || task.getResult() == null) {
-                        // Handle failure in obtaining token
-                        Log.e("FirebaseMessaging", "Failed to obtain token");
-                        return;
-                    }
-                    String token = task.getResult();
-                    UserAccount userAccount = new UserAccount(user.getUid(), name, email, phoneNumber, dateOfBirth, token, false);
+        UserAccount userAccount = new UserAccount(user.getUid(), name, email, phoneNumber, dateOfBirth, false);
 
-                    mDatabase.child(user.getUid()).setValue(userAccount)
-                            .addOnSuccessListener(aVoid -> {
-                                // Handle successful write to database
-                                Log.d("saveUserInformation", "User information saved successfully.");
-                                navigateToMainActivity();
-                            });
+        mDatabase.child(user.getUid()).setValue(userAccount)
+                .addOnSuccessListener(aVoid -> {
+                    // Handle successful write to database
+                    Log.d("saveUserInformation", "User information saved successfully.");
+                    navigateToMainActivity();
                 });
+
     }
 
     // Example placeholder for navigateToMainActivity method
@@ -232,26 +223,14 @@ public class FirebaseUIActivity extends AppCompatActivity {
         finish();
     }
 
-    private void askNotificationPermission() {
-        // This is only necessary for API level >= 33 (TIRAMISU)
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED) {
-            // FCM SDK (and your app) can post notifications.
-        } else if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
-            // TODO: display an educational UI explaining to the user the features that will be enabled
-            //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-            //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-            //       If the user selects "No thanks," allow the user to continue without notifications.
-        } else {
-            // Directly ask for the permission
-            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
-        }
-
-
-    }
-
-
+    /*
+       animationView.setAnimation("newAnimation.lottie");
+        animationView.setAlpha(1.0f);
+        animationView.setElevation(10.0f);
+        animationView.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white)); // Set background color
+        animationView.playAnimation();
+     */
 
 
 }

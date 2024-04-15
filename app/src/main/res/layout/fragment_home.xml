@@ -4,50 +4,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="?attr/actionBarSize"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/doctor_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"
         android:textAlignment="center"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.035" />
+        tools:text="doctor name" />
 
-    <Button
-        android:id="@+id/navigateButton"
+    <LinearLayout
+        android:id="@+id/buttonGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="424dp"
-        android:text="Navigate"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/signOutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Out"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="24dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/navigateButton" />
+        app:layout_constraintEnd_toStartOf="@+id/mapView"
+        app:layout_constraintHorizontal_bias="0.43"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/navigateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nav"
+            app:icon="@drawable/google_map_ic" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/callButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Call"
+            app:icon="@drawable/ic_phone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signOutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign Out" />
+
+    </LinearLayout>
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.898"
@@ -60,7 +71,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="168dp" />
+        app:layout_constraintGuide_begin="200dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
@@ -69,30 +80,63 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="396dp" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="36dp"
-        tools:layout_editor_absoluteY="136dp"
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/medicalCenterIV"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@+id/mapView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/guideline4"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
         tools:src="@tools:sample/avatars" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="264dp"
-        tools:layout_editor_absoluteY="142dp"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/interiorIV"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/medicalCenterIV"
+        android:padding="16dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@+id/mapView"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="0.519"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline4"
+        app:layout_constraintVertical_bias="0.401"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
         tools:src="@tools:sample/avatars" />
 
-    <Button
-        android:id="@+id/callButton"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/signOutButton"
-        app:layout_constraintTop_toBottomOf="@+id/navigateButton"
-        tools:layout_editor_absoluteX="31dp" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="184dp" />
 
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="user name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/doctor_name" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/nextAppointment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="next appointment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/userName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

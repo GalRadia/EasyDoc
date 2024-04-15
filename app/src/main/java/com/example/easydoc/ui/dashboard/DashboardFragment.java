@@ -73,14 +73,17 @@ public class DashboardFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewPassedAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new AppointmentAdapter(getContext(), new ArrayList<>());
-        adapterPassedAppointments = new AppointmentAdapter(getContext(), new ArrayList<>());
+        adapter = new AppointmentAdapter(getContext(), new ArrayList<>(),false);
+        adapterPassedAppointments = new AppointmentAdapter(getContext(), new ArrayList<>(),true);
 
         setupAdapterCallbacks(adapter);
         setupAdapterCallbacks(adapterPassedAppointments);
 
         recyclerView.setAdapter(adapter);
         recyclerViewPassedAppointments.setAdapter(adapterPassedAppointments);
+
+
+
     }
 
     private void setupAdapterCallbacks(AppointmentAdapter adapter) {

@@ -57,4 +57,9 @@ public class DashboardViewModel extends ViewModel {
   public List<String> getWaitlistDates(){
         return repository.getWailistDatesFromCurrentUser();
   }
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        DatabaseRepository.destroyInstance();
+    }
 }

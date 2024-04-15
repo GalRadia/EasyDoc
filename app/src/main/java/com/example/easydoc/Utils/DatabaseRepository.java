@@ -23,6 +23,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.Map;
 
 public class DatabaseRepository {
     private static DatabaseRepository instance;
+    private final MutableLiveData<String> doctorNameLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Appointment> nextAppointmentLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> passedAppointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> userAppointmentsLiveData = new MutableLiveData<>();
@@ -56,8 +59,6 @@ public class DatabaseRepository {
         usersReference = database.getReference("users");
         doctorOfficeReference = database.getReference("doctor office");
         appointmentsWaitListReference = database.getReference("appointmentsWaitList");
-
-        // fetchCurrentUser();
         userAppointmentsReference = database.getReference("users").child(currentUser.getUid().toString()).child("appointmentsID");
         fetchAppointments();
         fetchUsers();
@@ -65,7 +66,9 @@ public class DatabaseRepository {
         fetchCurrentUserDoctor();
         fetchDoctorOffice();
         fetchAppointmentsWaitList();
+        fetchNextAppointment();
     }
+
 
     private void fetchAppointmentsWaitList() {
         appointmentsWaitListReference.addValueEventListener(new ValueEventListener() {
@@ -108,6 +111,7 @@ public class DatabaseRepository {
 
 
     }
+
 
     public static void destroyInstance() {
         instance = null;
@@ -331,7 +335,7 @@ public class DatabaseRepository {
     }
 
 
-    public void insertAppointment(Appointment appointment, Repeat repeat, Due due) throws RuntimeException{
+    public void insertAppointment(Appointment appointment, Repeat repeat, Due due) throws RuntimeException {
         // Calculate the initial due date based on the specified Due enum
         Calendar dueCalendar;
         dueCalendar = Helper.stringToCalendar(appointment.getDate());
@@ -439,22 +443,6 @@ public class DatabaseRepository {
         });
     }
 
-    public void addUserToken() {
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-                        usersReference.child(currentUser.getUid()).child("token").setValue(token);
-
-                    }
-                });
-    }
 
     public void fetchCurrentUserDoctor() {
         usersReference.child(currentUser.getUid()).child("doctor").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -508,29 +496,44 @@ public class DatabaseRepository {
         return dates;
     }
 
+    public void setOfficeStartTime(String string) {
+        doctorOfficeReference.child("startTime").setValue(string);
+    }
 
-//    public Timepoint[] getDisabledTimepointsFromDate(String date) {
-//        List<Timepoint> disabledTimes = new ArrayList<>();
-//        appointmentsReference.orderByChild("date").equalTo(date).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    String time = snapshot.child("time").getValue(String.class);
-//                    if (time != null) {
-//                        String[] timeParts = time.split(":");
-//                        int hour = Integer.parseInt(timeParts[0]);
-//                        int minute = Integer.parseInt(timeParts[1]);
-//                        Timepoint timepoint = new Timepoint(hour, minute);
-//                        disabledTimes.add(timepoint);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                // Handle potential errors
-//            }
-//        });
-//        return disabledTimes.toArray(new Timepoint[0]);
-//    }
+    public void setOfficeEndTime(String string) {
+        doctorOfficeReference.child("endTime").setValue(string);
+    }
+
+    public void setOfficeMonthsInAdvance(String string) {
+        doctorOfficeReference.child("monthsInAdvance").setValue(string);
+    }
+
+    public void setOfficePhone(String string) {
+        doctorOfficeReference.child("phone").setValue(string);
+    }
+
+    public void fetchNextAppointment() {
+        userAppointmentsLiveData.observeForever(appointments -> {
+            Appointment nextAppointment = findNextAppointment();
+            if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
+                nextAppointmentLiveData.postValue(nextAppointment);
+            } else {
+                nextAppointmentLiveData.postValue(null); // Handle no upcoming appointments
+            }
+        });
+    }
+    public LiveData<Appointment> getNextAppointmentLiveData() {
+        return nextAppointmentLiveData;
+    }
+
+    public Appointment findNextAppointment() {
+        List<Appointment> appointmentList = appointmentsLiveData.getValue();
+        if (appointmentList == null) {
+            return null;
+        }
+        Collections.sort(appointmentList);
+        return appointmentList.get(0);
+    }
+
+
 }

@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Base Colors -->
+    <color name="blue_gray_500">#607D8B</color> <!-- Cool neutral -->
+    <color name="blue_gray_700">#455A64</color> <!-- Darker shade for depth -->
+
+    <!-- Accent Colors -->
+    <color name="cyan_500">#00BCD4</color> <!-- Bright and lively -->
+    <color name="cyan_700">#0097A7</color> <!-- Deeper accent -->
+    <color name="amber_500">#FFC107</color> <!-- Warm and inviting -->
+    <color name="amber_700">#FFA000</color> <!-- Strong and vibrant -->
+
+    <!-- Supporting Colors -->
+    <color name="deep_purple_500">#673AB7</color> <!-- Rich and vibrant -->
+    <color name="deep_purple_700">#512DA8</color> <!-- Luxurious purple -->
+    <color name="light_green_500">#8BC34A</color> <!-- Fresh and energetic -->
+    <color name="light_green_700">#689F38</color> <!-- Earthy green -->
+
+    <!-- Neutrals -->
+    <color name="gray_500">#9E9E9E</color> <!-- Neutral gray -->
+    <color name="gray_700">#616161</color> <!-- Darker gray for contrast -->
+
+    <!-- Basics -->
+    <color name="white">#FFFFFF</color> <!-- Pure white -->
+    <color name="black">#000000</color> <!-- Pure black -->
 </resources>

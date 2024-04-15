@@ -51,7 +51,7 @@ public class AppointmentsFragment extends Fragment {
     private MaterialButton month;
     private MaterialButton twoMonths;
     private MaterialButtonToggleGroup durationToggleGroup;
-   private MaterialButtonToggleGroup repeatToggleGroup;
+    private MaterialButtonToggleGroup repeatToggleGroup;
     private LiveData<DoctorOffice> doctorOfficeLiveData;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -59,9 +59,17 @@ public class AppointmentsFragment extends Fragment {
 
         AppointmentsViewModel appointmentsViewModel =
                 new ViewModelProvider(this).get(AppointmentsViewModel.class);
+        LiveData<Boolean> isDoctor=appointmentsViewModel.isDoctor();
+        isDoctor.observe(getViewLifecycleOwner(), aBoolean -> {
+            if(aBoolean){
+                
+                Navigation.findNavController(getView()).navigate(R.id.action_navigation_appointments_to_settingsFragment);
+            }
+        });
 
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
         doctorOfficeLiveData = appointmentsViewModel.getDoctorOffice();
         SetupUI();
         InitUI(appointmentsViewModel, root);
@@ -135,7 +143,7 @@ public class AppointmentsFragment extends Fragment {
     }
 
     private void SetupUI() {
-        appointmentTimeLayout= binding.appointmentTimeLayout;
+        appointmentTimeLayout = binding.appointmentTimeLayout;
         appointmentDateLayout = binding.appointmentDateLayout;
         nextButton = binding.buttonNext;
         waitListButton = binding.waitList;
@@ -234,11 +242,12 @@ public class AppointmentsFragment extends Fragment {
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
+        dpd.setFirstDayOfWeek(Calendar.SUNDAY);
 
         dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
-            if (monthOfYear < 9)
-                appointmentDate.setText(dayOfMonth + "/0" + (monthOfYear + 1) + "/" + year);
-            else appointmentDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+            String month = monthOfYear < 9 ? "0" + (monthOfYear + 1) : "" + (monthOfYear + 1);
+            String day = dayOfMonth < 10 ? "0" + dayOfMonth : "" + dayOfMonth;
+            appointmentDate.setText(day + "/" + (month) + "/" + year);
             appointmentTime.setText("");
 
         });

@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.activity)
+    implementation(libs.legacy.support.v4)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -78,6 +79,8 @@ dependencies {
     //  implementation(libs.google.services)
     implementation(libs.play.services.auth)
     implementation(libs.play.services.maps)
+    implementation(libs.glide)
+
 
 
     // TODO: Add the dependencies for Firebase products you want to use

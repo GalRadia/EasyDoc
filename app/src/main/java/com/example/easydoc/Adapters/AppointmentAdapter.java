@@ -1,6 +1,7 @@
 package com.example.easydoc.Adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,13 +29,14 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     private HorizontalAppointmentInfoItemBinding binding;
     private AppointmentCallback appointmentCallback;
     private SortedList<Appointment> appointments;
+    private boolean isPass;
 
-
-    public AppointmentAdapter(Context context, List<Appointment> appointments) {
+    public AppointmentAdapter(Context context, List<Appointment> appointments, boolean isPass) {
         this.context = context;
-        SortedList<Appointment>srtl = new SortedList<>(Appointment.class,new SortedListComperator());
+        SortedList<Appointment> srtl = new SortedList<>(Appointment.class, new SortedListComperator());
         srtl.addAll(appointments);
         this.appointments = srtl;
+        this.isPass = isPass;
 
     }
 
@@ -92,9 +94,9 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     }
 
     public void setAppointments(List<Appointment> newAppointments) {
-        SortedList<Appointment> srtl = new SortedList<>(Appointment.class,new SortedListComperator());
+        SortedList<Appointment> srtl = new SortedList<>(Appointment.class, new SortedListComperator());
         srtl.addAll(newAppointments);
-        this.appointments=srtl;
+        this.appointments = srtl;
         //this.appointments = (List<Appointment>) srtl;
         notifyDataSetChanged(); // This is crucial for informing the RecyclerView about the data change.
     }
@@ -111,7 +113,11 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
             appointTXTDescription = binding.appointTXTDescription;
             appointBTNDelete = binding.buttonDelete;
             appointBTNUpdate = binding.buttonChange;
+            if (isPass) {
+                appointBTNUpdate.setVisibility(View.GONE);
+                appointBTNDelete.setBackgroundColor(Color.GRAY);
+            }
         }
-    }
 
+    }
 }

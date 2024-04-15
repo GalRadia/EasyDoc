@@ -34,6 +34,7 @@ public class AppointmentsViewModel extends ViewModel {
         mText = new MutableLiveData<>();
         mText.setValue("This is notifications fragment");
         repository = DatabaseRepository.getInstance();
+
     }
 
     public LiveData<List<Appointment>> getAppointments() {
@@ -114,6 +115,15 @@ public class AppointmentsViewModel extends ViewModel {
     }
     public void addAppointment(Appointment appointment, Repeat repeat, Due due) {
         repository.insertAppointment(appointment, repeat, due);
+    }
+    public LiveData<Boolean> isDoctor(){
+        return repository.getIsDoctorLiveData();
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        DatabaseRepository.destroyInstance();
     }
 
 

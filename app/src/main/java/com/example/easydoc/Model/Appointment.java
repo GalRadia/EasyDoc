@@ -1,9 +1,10 @@
 package com.example.easydoc.Model;
 
 
+import java.util.Comparator;
 import java.util.UUID;
 
-public class Appointment implements Comparable<Appointment> {
+public class Appointment implements Comparable<Appointment> , Comparator<Appointment> {
     private String id;
 
     private String date;
@@ -66,23 +67,25 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     @Override
-    public int compareTo(Appointment appointment) {
-        int day= Integer.parseInt(this.date.split("/")[0]);
-        int month= Integer.parseInt(this.date.split("/")[1]);
-        int oDay= Integer.parseInt(appointment.getDate().split("/")[0]);
-        int oMonth= Integer.parseInt(appointment.getDate().split("/")[1]);
-        if(month>oMonth){
-            return -1;
-        }else if(month<oMonth){
-            return 1;
-        }else{
-            if(day>oDay){
-                return -1;
-            }else if(day<oDay){
-                return 1;
-            }else{
-                return 0;
-            }
+    public int compareTo(Appointment other) {
+        String[] thisDateParts = this.date.split("/");
+        String[] otherDateParts = other.getDate().split("/");
+        int thisMonth = Integer.parseInt(thisDateParts[1]);
+        int thisDay = Integer.parseInt(thisDateParts[0]);
+        int otherMonth = Integer.parseInt(otherDateParts[1]);
+        int otherDay = Integer.parseInt(otherDateParts[0]);
+
+        // First compare month
+        if (thisMonth != otherMonth) {
+            return thisMonth - otherMonth;
         }
+
+        // If months are equal, compare day
+        return thisDay - otherDay;
+    }
+
+    @Override
+    public int compare(Appointment appointment, Appointment t1) {
+        return appointment.compareTo(t1);
     }
 }
