@@ -2,7 +2,6 @@ package com.example.easydoc;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private ActivityMainBinding binding;
     private boolean mLocationPermissionGranted;
+    AppBarConfiguration appBarConfiguration= new AppBarConfiguration.Builder(
+            R.id.navigation_home, R.id.navigation_dashboard, R.id.nested_appointments, R.id.navigation_office_settings)
+            .build();
+
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -52,22 +55,20 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         DatabaseRepository repo=DatabaseRepository.getInstance();
         LiveData<Boolean> isDoctor=repo.getIsDoctorLiveData();
+        navView.getMenu().findItem(R.id.navigation_office_settings).setVisible(false);
         isDoctor.observe(this, aBoolean -> {
             if(aBoolean){
-                navView.getMenu().findItem(R.id.nested_appointments).setTitle("Office");
-                navView.getMenu().findItem(R.id.nested_appointments).setIcon(R.drawable.health_ic);
-
+                navView.getMenu().findItem(R.id.navigation_office_settings).setVisible(true);
+                navView.getMenu().findItem(R.id.nested_appointments).setVisible(false);
             }
+
         });
 
 
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.nested_appointments)
-                .build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-        //  askNotificationPermission();
 
     }
 
@@ -103,24 +104,7 @@ public class MainActivity extends AppCompatActivity {
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
 
-    private void askNotificationPermission() {
-        // This is only necessary for API level >= 33 (TIRAMISU)
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED) {
-            // FCM SDK (and your app) can post notifications.
-        } else if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
-            // TODO: display an educational UI explaining to the user the features that will be enabled
-            //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-            //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-            //       If the user selects "No thanks," allow the user to continue without notifications.
-        } else {
-            // Directly ask for the permission
-            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
-        }
-
-
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],

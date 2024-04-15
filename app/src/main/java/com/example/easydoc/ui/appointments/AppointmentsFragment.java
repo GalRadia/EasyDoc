@@ -59,13 +59,7 @@ public class AppointmentsFragment extends Fragment {
 
         AppointmentsViewModel appointmentsViewModel =
                 new ViewModelProvider(this).get(AppointmentsViewModel.class);
-        LiveData<Boolean> isDoctor=appointmentsViewModel.isDoctor();
-        isDoctor.observe(getViewLifecycleOwner(), aBoolean -> {
-            if(aBoolean){
-                
-                Navigation.findNavController(getView()).navigate(R.id.action_navigation_appointments_to_settingsFragment);
-            }
-        });
+
 
         binding = FragmentAppointmentsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();

@@ -3,8 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_appointments">Appointments</string>
-    <string name="title_settings">Settings</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="title_settings">Office Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="appointment_added">Appointment added successfully</string>
     <string name="appointment_failed">Error, Appointment didnt add.\nCheck the avilable Time and Date</string>

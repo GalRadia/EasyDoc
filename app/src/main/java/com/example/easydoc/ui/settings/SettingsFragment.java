@@ -1,22 +1,18 @@
 package com.example.easydoc.ui.settings;
 
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
-import com.example.easydoc.databinding.FragmentSettingsBinding;
-import com.google.android.gms.dynamic.SupportFragmentWrapper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.example.easydoc.databinding.FragmentOfficeSettingsBinding;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,7 +21,7 @@ import com.google.android.material.textview.MaterialTextView;
 public class SettingsFragment extends Fragment {
 
     private SettingsViewModel mViewModel;
-    private FragmentSettingsBinding binding;
+    private FragmentOfficeSettingsBinding binding;
     private AutoCompleteTextView selectStartTime;
     private AutoCompleteTextView selectEndTime;
     private TextInputEditText textInputEditText;
@@ -42,8 +38,9 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         mViewModel= new ViewModelProvider(this).get(SettingsViewModel.class);
-        binding = FragmentSettingsBinding.inflate(inflater, container, false);
+        binding = FragmentOfficeSettingsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         setupUI();
         initUI();

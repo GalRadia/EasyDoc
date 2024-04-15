@@ -10,7 +10,11 @@
         android:name="com.example.easydoc.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
-
+    <fragment
+        android:id="@+id/navigation_office_settings"
+        android:name="com.example.easydoc.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_office_settings" />
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.example.easydoc.ui.dashboard.DashboardFragment"
@@ -52,15 +56,8 @@
                 android:name="appointmentTime"
                 app:argType="string"
                 app:nullable="true" />
-            <action
-                android:id="@+id/action_navigation_appointments_to_settingsFragment"
-                app:destination="@id/settingsFragment" />
         </fragment>
-        <fragment
-            android:id="@+id/settingsFragment"
-            android:name="com.example.easydoc.ui.settings.SettingsFragment"
-            android:label="@string/title_settings"
-            tools:layout="@layout/fragment_settings" />
     </navigation>
+
 
 </navigation>
