@@ -168,20 +168,22 @@ public class HomeFragment extends Fragment {
     private void initUI() {
         uploadImage(R.drawable.medical_center, medicalCenterImage);
         uploadImage(R.drawable.interior, interiorImage);
+        homeViewModel.getNextAppointment().observe(getViewLifecycleOwner(), appointment -> {
+            if(appointment==null)
+                nextAppointment.setText("No upcoming appointments");
+            else {
+                nextAppointment.setText("Next appointment: " + appointment.getDate() + " at " + appointment.getTime());
+            }
+        });
         homeViewModel.getIsDoctorLiveData().observe(getViewLifecycleOwner(), isDoctor -> {
             if (!isDoctor) {
-                userName.setText(homeViewModel.getUserName());
-                homeViewModel.getNextAppointment().observe(getViewLifecycleOwner(), appointment -> {
-                    if(nextAppointment==null)
-                        nextAppointment.setText("No upcoming appointments");
-                    else {
-                        nextAppointment.setText("Next appointment: " + appointment.getDate() + " at " + appointment.getTime());
-                    }
+                homeViewModel.getUserAccountLiveData().observe(getViewLifecycleOwner(), userAccount -> {
+                    userName.setText("Hello " + userAccount.getName());
                 });
+
             }
             else {
-                nextAppointment.setVisibility(View.GONE);
-                userName.setVisibility(View.GONE);
+                userName.setText("Hello Doctor");
             }
         });
 
@@ -207,7 +209,7 @@ public class HomeFragment extends Fragment {
                         Intent intent = new Intent(requireContext(), FirebaseUIActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
-                        requireActivity().recreate();
+                        requireActivity().finish();
                     });
         });
     }

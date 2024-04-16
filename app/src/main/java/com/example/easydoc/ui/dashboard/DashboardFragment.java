@@ -31,7 +31,7 @@ public class DashboardFragment extends Fragment {
     private MaterialButton showWaitListButton;
     private RecyclerView recyclerView;
     private RecyclerView recyclerViewPassedAppointments;
-    DashboardViewModel dashboardViewModel;
+    private DashboardViewModel dashboardViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -60,7 +60,6 @@ public class DashboardFragment extends Fragment {
                 return;
             }
             builder.setItems(dates.toArray(new String[0]), (dialog, which) -> {
-                // the user clicked on dates[which]
             });
             builder.show();
 

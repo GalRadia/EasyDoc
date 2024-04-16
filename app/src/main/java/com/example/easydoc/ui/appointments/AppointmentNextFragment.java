@@ -20,12 +20,14 @@ import com.example.easydoc.R;
 import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentAppointmentNextBinding;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class AppointmentNextFragment extends Fragment {
@@ -33,8 +35,10 @@ public class AppointmentNextFragment extends Fragment {
     private FirebaseAuth mAuth;
     private AppointmentsViewModel appointmentsViewModel;
     private MaterialButton button;
-    private Slider slider;
     private TextInputEditText message;
+    private Repeat repeat;
+    private Due due;
+    private MaterialSwitch switchCalander;
 
     public AppointmentNextFragment() {
         // Required empty public constructor
@@ -59,26 +63,31 @@ public class AppointmentNextFragment extends Fragment {
         String d = saveInstance.getString("appointmentDate");
         int repreat = saveInstance.getInt("recurrent");
         int duration = saveInstance.getInt("duration");
-        Repeat repeat = Repeat.values()[repreat];
-        Due due = Due.values()[duration];
+        repeat = Repeat.values()[repreat];
+        due = Due.values()[duration];
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        button.setOnClickListener(view -> {
-            Appointment appointment = new Appointment(d, t, message.getText().toString(), user.getDisplayName());
-            try {
-                appointmentsViewModel.addAppointment(appointment, repeat, due);
-                Toast.makeText(getContext(), getString(R.string.appointment_added), Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                Toast.makeText(getContext(), getString(R.string.appointment_failed), Toast.LENGTH_LONG).show();
-            }
-            addToCalanderIntent(appointment);
-            Navigation.findNavController(requireView()).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);
+        appointmentsViewModel.getUserAccountLiveData().observe(getViewLifecycleOwner(), userAccount -> {
+
+
+            button.setOnClickListener(view -> {
+                Appointment appointment = new Appointment(d, t, message.getText().toString(), userAccount.getName());
+                try {
+                    appointmentsViewModel.addAppointment(appointment, repeat, due);
+                    Toast.makeText(getContext(), getString(R.string.appointment_added), Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), getString(R.string.appointment_failed), Toast.LENGTH_LONG).show();
+                }
+                if (switchCalander.isChecked())
+                    addToCalanderIntent(appointment);
+                Navigation.findNavController(requireView()).navigate(R.id.action_appointmentNextFragment_to_navigation_appointments);
+            });
         });
     }
 
     private void SetupUI() {
         button = binding.finishB;
         message = binding.editMessage;
+        switchCalander = binding.swtich;
     }
 
 

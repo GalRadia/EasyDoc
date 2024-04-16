@@ -4,14 +4,17 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.easydoc.Interfaces.isDoctorCallback;
 import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.databinding.ActivityFirebaseUiactivityBinding;
 import com.firebase.ui.auth.AuthUI;
@@ -20,8 +23,11 @@ import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Arrays;
@@ -116,6 +122,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
         binding.editName.setText(user.getDisplayName());
         binding.editPhoneNumber.setText(user.getPhoneNumber());
         binding.editPhoneNumber.setEnabled(user.getPhoneNumber() == null || user.getPhoneNumber().isEmpty());
+
     }
 
     private void signOut() {
@@ -123,13 +130,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
                 .signOut(this)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // This ensures the UI is cleared and ready for a new sign-in
                         clearUIForSignOut();
-                        // Optionally, you can redirect the user to the sign-in activity directly
-                        createSignInIntent();
-                    } else {
-                        // Handle the failure of sign-out, possibly by showing an error message
-                        showErrorSignOutFailed();
                     }
                 });
     }
@@ -142,9 +143,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
         binding.editDate.setText("");
     }
 
-    private void showErrorSignOutFailed() {
-        // Implement error handling here, e.g., show a toast or a dialog
-    }
+
 
     private void showDatePickerDialog() {
         Calendar c = Calendar.getInstance();
@@ -192,15 +191,39 @@ public class FirebaseUIActivity extends AppCompatActivity {
         }
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-        UserAccount userAccount = new UserAccount(user.getUid(), name, email, phoneNumber, dateOfBirth, false);
+        checkIfDoctor(mDatabase, isDoctor -> {
+            UserAccount userAccount = new UserAccount(user.getUid(), name, email, phoneNumber, dateOfBirth, isDoctor);
+            mDatabase.child(user.getUid()).setValue(userAccount)
+                    .addOnSuccessListener(aVoid -> {
+                        // Handle successful write to database
+                        Log.d("saveUserInformation", "User information saved successfully.");
+                        navigateToMainActivity();
+                    });
+        });
 
-        mDatabase.child(user.getUid()).setValue(userAccount)
-                .addOnSuccessListener(aVoid -> {
-                    // Handle successful write to database
-                    Log.d("saveUserInformation", "User information saved successfully.");
-                    navigateToMainActivity();
-                });
 
+    }
+
+    public void checkIfDoctor(DatabaseReference mDatabase, isDoctorCallback callback) {
+
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    callback.onChecked(false);
+                    // The reference is not empty, there are children
+                } else {
+                    // The reference is empty, no children
+                    callback.onChecked(true);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors
+                Log.e("Firebase", "Error checking data", databaseError.toException());
+            }
+        });
     }
 
     // Example placeholder for navigateToMainActivity method

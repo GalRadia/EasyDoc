@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
+import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.Utils.DatabaseRepository;
-import com.firebase.ui.auth.AuthUI;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeViewModel extends ViewModel {
     private MutableLiveData<DoctorOffice> doctorOfficeMutableLiveData = new MutableLiveData<>();
+    private LiveData<UserAccount> userAccountMutableLiveData = new MutableLiveData<>();
 
     private final DatabaseRepository databaseRepository;
     private LiveData<Appointment> nextAppointment = new MutableLiveData<>();
@@ -25,10 +25,14 @@ public class HomeViewModel extends ViewModel {
         });
         nextAppointment = databaseRepository.getNextAppointmentLiveData();
         isDoctor = databaseRepository.getIsDoctorLiveData();
+        userAccountMutableLiveData = databaseRepository.getCurrentUserLiveData();
     }
 
     public LiveData<DoctorOffice> getDoctorOfficeLiveData() {
         return doctorOfficeMutableLiveData;
+    }
+    public LiveData<UserAccount> getUserAccountLiveData() {
+        return userAccountMutableLiveData;
     }
     public LiveData<Boolean> getIsDoctorLiveData() {
         return isDoctor;
@@ -41,12 +45,6 @@ public class HomeViewModel extends ViewModel {
         DatabaseRepository.destroyInstance();
     }
 
-    public String getUserName() {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            return "User";
-        }
-        return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-    }
 
     public LiveData<Appointment> getNextAppointment() {
         return nextAppointment;

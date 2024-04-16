@@ -72,6 +72,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editPhoneNumber"
             android:inputType="phone"
+            android:digits="0123456789+"
+            android:maxLength="10"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>

@@ -55,7 +55,7 @@ public class DashboardViewModel extends ViewModel {
         return repository.getIsDoctorLiveData();
   }
   public List<String> getWaitlistDates(){
-        return repository.getWailistDatesFromCurrentUser();
+        return repository.getWailistDatesList();
   }
     @Override
     protected void onCleared() {

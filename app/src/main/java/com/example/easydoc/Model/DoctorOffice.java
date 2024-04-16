@@ -1,5 +1,8 @@
 package com.example.easydoc.Model;
 
+import com.example.easydoc.Utils.Helper;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
+
 public class DoctorOffice {
     String startTime;
     String endTime;
@@ -12,7 +15,7 @@ public class DoctorOffice {
     String monthsInAdvance;
 
 
-    public DoctorOffice(String address, String name,String doctorName ,String phone,String email, String startTime, String endTime, String appointmentDuration, String monthsInAdvance) {
+    public DoctorOffice(String address, String name, String doctorName, String phone, String email, String startTime, String endTime, String appointmentDuration, String monthsInAdvance) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.appointmentDuration = appointmentDuration;
@@ -110,4 +113,10 @@ public class DoctorOffice {
         this.email = email;
         return this;
     }
+
+//    public int getMaxAppointmentsPerDay() {
+//        float end= Helper.stringToHour(endTime);
+//        float start= Helper.stringToHour(startTime);
+//        return (int) ((end-start)*60/Integer.parseInt(appointmentDuration));
+//    }
 }

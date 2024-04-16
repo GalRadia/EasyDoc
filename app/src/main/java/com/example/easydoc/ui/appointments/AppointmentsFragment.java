@@ -274,6 +274,7 @@ public class AppointmentsFragment extends Fragment {
     public void addAppointmentToWaitList(AppointmentsViewModel appointmentsViewModel) {
         android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
             String date = dayOfMonth + "/" + (month + 1) + "/" + year;
+            date= Helper.getValidDate(date);
             if (appointmentsViewModel.isDateAvailable(date))
                 Toast.makeText(getContext(), "Date is available", Toast.LENGTH_SHORT).show();
             else {

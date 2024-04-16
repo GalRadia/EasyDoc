@@ -9,8 +9,6 @@ import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Model.Due;
 import com.example.easydoc.Model.Repeat;
 import com.example.easydoc.Model.UserAccount;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -18,7 +16,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -28,9 +25,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class DatabaseRepository {
     private static DatabaseRepository instance;
+    private final MutableLiveData<UserAccount> userAccountLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> doctorNameLiveData = new MutableLiveData<>();
     private final MutableLiveData<Appointment> nextAppointmentLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> passedAppointmentsLiveData = new MutableLiveData<>();
@@ -67,6 +66,23 @@ public class DatabaseRepository {
         fetchDoctorOffice();
         fetchAppointmentsWaitList();
         fetchNextAppointment();
+        fetchCurrentUser();
+    }
+
+    private void fetchCurrentUser() {
+        usersLiveData.observeForever(users -> {
+            for (UserAccount user : users) {
+                if (user.getUid().equals(currentUser.getUid())) {
+                    userAccountLiveData.postValue(user);
+                    break;
+                }
+            }
+        });
+
+    }
+
+    public LiveData<UserAccount> getCurrentUserLiveData() {
+        return userAccountLiveData;
     }
 
 
@@ -104,12 +120,6 @@ public class DatabaseRepository {
                 // Log error
             }
         });
-    }
-
-    private void fetchCurrentUser() {
-        mAuth.addAuthStateListener(firebaseAuth -> currentUserLiveData.postValue(firebaseAuth.getCurrentUser()));
-
-
     }
 
 
@@ -247,7 +257,7 @@ public class DatabaseRepository {
                     for (DataSnapshot appointmentIdSnapshot : appointmentsIDSnapshot.getChildren()) {
                         if (appointmentIdSnapshot.getValue(String.class).equals(appointmentID)) {
                             appointmentIdSnapshot.getRef().removeValue();
-                            break; // Break if you assume an appointment can only be under one user
+                            break; // Break because an appointment can only be under one user
                         }
                     }
                 }
@@ -275,7 +285,7 @@ public class DatabaseRepository {
 
     public boolean dateAvailable(String date) {
         int count = 0;
-        for (Appointment appointment : appointmentsLiveData.getValue()) {
+        for (Appointment appointment : Objects.requireNonNull(appointmentsLiveData.getValue())) {
             if (appointment.getDate().equals(date)) {
                 count++;
             }
@@ -300,6 +310,7 @@ public class DatabaseRepository {
         }
         return name;
     }
+
 
     private String getDateFromAppointmentID(String appointmentID) {
         String date = "";
@@ -411,7 +422,8 @@ public class DatabaseRepository {
 
 
         assert currentUser != null;
-        usersReference.child(currentUser.getUid()).child("appointmentsID").push().setValue(newAppointment.getId())
+        usersReference.child(currentUser.getUid()).
+                child("appointmentsID").push().setValue(newAppointment.getId())
                 .addOnFailureListener(e -> {
                     throw new RuntimeException("Failed to save appointment");
                 });
@@ -486,12 +498,25 @@ public class DatabaseRepository {
     }
 
 
-    public List<String> getWailistDatesFromCurrentUser() {
+    public List<String> getWailistDatesList() {
         List<String> dates = new ArrayList<>();
         for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
-            if (entry.getKey().equals(currentUser.getUid())) {
-                dates.add(entry.getValue());
-            }
+            isDoctorLiveData.observeForever(isDoctor -> {
+                if (!isDoctor) {
+                    if (entry.getKey().equals(currentUser.getUid())) {
+                        dates.add(entry.getValue());
+                    }
+                }
+                else dates.add(entry.getValue());
+            });
+        }
+        return dates;
+    }
+
+    public List<String> getAllWaitlistDates() {
+        List<String> dates = new ArrayList<>();
+        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
+            dates.add(entry.getValue());
         }
         return dates;
     }
@@ -513,22 +538,39 @@ public class DatabaseRepository {
     }
 
     public void fetchNextAppointment() {
-        userAppointmentsLiveData.observeForever(appointments -> {
-            Appointment nextAppointment = findNextAppointment();
-            if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
-                nextAppointmentLiveData.postValue(nextAppointment);
+        isDoctorLiveData.observeForever(isDoctor -> {
+            if (isDoctor) {
+                appointmentsLiveData.observeForever(appointments -> {
+                    Appointment nextAppointment = findNextAppointment();
+                    if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
+                        nextAppointmentLiveData.postValue(nextAppointment);
+                    } else {
+                        nextAppointmentLiveData.postValue(null); // Handle no upcoming appointments
+                    }
+                });
             } else {
-                nextAppointmentLiveData.postValue(null); // Handle no upcoming appointments
+                userAppointmentsLiveData.observeForever(appointments -> {
+                    Appointment nextAppointment = findNextAppointment();
+                    if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
+                        nextAppointmentLiveData.postValue(nextAppointment);
+                    } else {
+                        nextAppointmentLiveData.postValue(null); // Handle no upcoming appointments
+                    }
+                });
             }
         });
     }
+
     public LiveData<Appointment> getNextAppointmentLiveData() {
         return nextAppointmentLiveData;
     }
 
     public Appointment findNextAppointment() {
-        List<Appointment> appointmentList = appointmentsLiveData.getValue();
-        if (appointmentList == null) {
+        List<Appointment> appointmentList;
+        if (isDoctorLiveData.getValue())
+            appointmentList = appointmentsLiveData.getValue();
+        else appointmentList = userAppointmentsLiveData.getValue();
+        if (appointmentList == null || appointmentList.isEmpty()) {
             return null;
         }
         Collections.sort(appointmentList);

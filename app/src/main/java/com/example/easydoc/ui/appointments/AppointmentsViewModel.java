@@ -9,6 +9,7 @@ import com.example.easydoc.Model.Appointment;
 import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Model.Due;
 import com.example.easydoc.Model.Repeat;
+import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.Utils.DatabaseRepository;
 import com.example.easydoc.Utils.Helper;
 import com.google.firebase.database.DataSnapshot;
@@ -27,18 +28,29 @@ import java.util.Map;
 
 public class AppointmentsViewModel extends ViewModel {
     private final DatabaseRepository repository;
+    private MutableLiveData<DoctorOffice> doctorOfficeMutableLiveData = new MutableLiveData<>();
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("appointments");
     private final MutableLiveData<String> mText;
+    private MutableLiveData<UserAccount> userAccountMutableLiveData = new MutableLiveData<>();
 
     public AppointmentsViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is notifications fragment");
         repository = DatabaseRepository.getInstance();
+        repository.getDoctorOfficeLiveData().observeForever(doctorOffice -> {
+            doctorOfficeMutableLiveData.setValue(doctorOffice);
+        });
+        repository.getCurrentUserLiveData().observeForever(userAccount -> {
+            userAccountMutableLiveData.setValue(userAccount);
+        });
 
     }
 
     public LiveData<List<Appointment>> getAppointments() {
         return repository.getAppointmentsLiveData();
+    }
+    public LiveData<UserAccount> getUserAccountLiveData() {
+        return userAccountMutableLiveData;
     }
 
     public LiveData<String> getText() {
@@ -65,12 +77,17 @@ public class AppointmentsViewModel extends ViewModel {
 
                 List<Calendar> busyDates = new ArrayList<>();
                 for (Map.Entry<String, Integer> entry : dateCounts.entrySet()) {
-                    if (entry.getValue() > 4) {
-                        Calendar date = Helper.stringToCalendar(entry.getKey());
-                        if (date != null) {
-                            busyDates.add(date);
+                    repository.getDoctorOfficeLiveData().observeForever(doctorOffice -> {
+                        if (doctorOffice != null) {
+                            if (entry.getValue() > repository.appointmentsInDay()) {
+                                Calendar date = Helper.stringToCalendar(entry.getKey());
+                                if (date != null) {
+                                    busyDates.add(date);
+                                }
+                            }
                         }
-                    }
+                    });
+
                 }
 
                 callback.onSuccess(busyDates);
