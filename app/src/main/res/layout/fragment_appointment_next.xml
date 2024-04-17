@@ -16,9 +16,9 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="@dimen/default_margin_mid"
+            android:layout_marginTop="@dimen/default_large_margin"
+            android:layout_marginEnd="@dimen/default_margin_mid"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -27,7 +27,7 @@
                 android:id="@+id/editMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Input whatever"
+                android:hint="@string/please_enter_your_message_to_the_doctor"
                 android:lines="6" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -36,8 +36,8 @@
             android:id="@+id/finishB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Add appointment"
+            android:layout_marginTop="@dimen/default_large_margin"
+            android:text="@string/add_appointment"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/swtich" />
@@ -47,8 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="Add to calendar"
-            android:textSize="12sp"
+            android:text="@string/add_to_calendar"
+            android:textSize="@dimen/default_text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editMessageLayout" />

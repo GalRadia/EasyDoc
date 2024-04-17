@@ -2,25 +2,24 @@ package com.example.easydoc.Model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class UserAccount extends User{
 
-    List<String> appointmentsList;
-    boolean isDoctor;
+   private List<String> appointmentsList;
 
-    public UserAccount(String uid, String name, String email, String phoneNumber, String dateOfBirth , boolean isDoctor) {
+    private boolean doctor;
+
+    public UserAccount(String uid, String name, String email, String phoneNumber, String dateOfBirth , boolean doctor) {
         super(uid, name, email, phoneNumber, dateOfBirth);
         appointmentsList = new ArrayList<>();
-        this.isDoctor = isDoctor;
+        this.doctor = doctor;
     }
     public UserAccount(){
-        super();
 
     }
 
     public boolean isDoctor() {
-        return isDoctor;
+        return doctor;
     }
 
     public List<String> getAppointmentsList() {

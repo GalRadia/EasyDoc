@@ -9,14 +9,14 @@
 
 
     <TextView
-        android:id="@+id/text_notifications"
+        android:id="@+id/text_appointments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginHorizontal="@dimen/default_margin"
+        android:layout_marginTop="@dimen/default_large_margin"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="@dimen/default_large_text_size"
+        android:text="@string/add_appointment"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -29,13 +29,13 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginTop="@dimen/default_large_margin"
+        android:layout_marginEnd="@dimen/default_margin"
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications"
+        app:layout_constraintTop_toBottomOf="@+id/text_appointments"
         app:startIconDrawable="@drawable/ic_date">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="false"
-            android:hint="Appointment Date"
+            android:hint="@string/appointment_date"
             android:inputType="datetime" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,14 +60,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:startIconDrawable="@drawable/ic_time"
         app:layout_constraintTop_toBottomOf="@+id/appointmentDateLayout"
-        tools:layout_editor_absoluteX="16dp">
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/appointmentTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="false"
-            android:hint="Appointment Time"
+            android:hint="@string/appointment_time"
             android:inputType="time" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -89,31 +89,31 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No repeate"
-            android:textSize="11sp" />
+            android:text="@string/no_repeate"
+            android:textSize="@dimen/default_text_size" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/OnceWeek"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Once a week"
-            android:textSize="11sp" />
+            android:text="@string/once_a_week"
+            android:textSize="@dimen/default_text_size" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/Once2Weeks"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Once two weeks"
-            android:textSize="11sp" />
+            android:text="@string/once_two_weeks"
+            android:textSize="@dimen/default_text_size" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/DueToggleGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/default_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/repeatToggleGroup"
@@ -127,23 +127,23 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Month"
-            android:textSize="11sp" />
+            android:text="@string/month"
+            android:textSize="@dimen/default_text_size" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/twoMonths"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2 Months"
-            android:textSize="11sp" />
+            android:text="@string/_2_months"
+            android:textSize="@dimen/default_text_size" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <Button
         android:id="@+id/button_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:text="@string/next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +153,7 @@
         android:id="@+id/waitList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wait List"
+        android:text="@string/wait_list"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_next"
         app:layout_constraintStart_toStartOf="parent"

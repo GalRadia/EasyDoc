@@ -5,15 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="?attr/actionBarSize"
+
     tools:context=".ui.home.HomeFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/doctor_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/default_margin"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="@dimen/default_large_text_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,34 +24,34 @@
         android:id="@+id/buttonGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="@dimen/default_large_margin"
+        android:layout_marginBottom="@dimen/default_margin_mid"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/mapView"
-        app:layout_constraintHorizontal_bias="0.43"
+
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/navigateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nav"
+            android:text="@string/nav"
             app:icon="@drawable/google_map_ic" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/callButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="16dp"
-            android:text="Call"
+            android:layout_marginVertical="@dimen/default_margin"
+            android:text="@string/call"
             app:icon="@drawable/ic_phone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/signOutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign Out" />
+            android:text="@string/sign_out" />
 
     </LinearLayout>
 
@@ -58,13 +59,12 @@
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/default_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.898"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toTopOf="@+id/guideline3"
-        app:layout_constraintVertical_bias="0.409" />
+         />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
@@ -85,7 +85,7 @@
         android:id="@+id/medicalCenterIV"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
+        android:padding="@dimen/default_margin"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@+id/mapView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -101,7 +101,7 @@
         android:layout_height="0dp"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/medicalCenterIV"
-        android:padding="16dp"
+        android:padding="@dimen/default_margin"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@+id/mapView"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -123,8 +123,8 @@
         android:id="@+id/userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="user name"
+        android:layout_marginTop="@dimen/default_margin"
+        android:text="@string/user_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/doctor_name" />
@@ -133,8 +133,8 @@
         android:id="@+id/nextAppointment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="next appointment"
+        android:layout_marginTop="@dimen/default_margin"
+        android:text="@string/next_appointment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/userName" />

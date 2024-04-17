@@ -56,7 +56,7 @@ public class DatabaseRepository {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         appointmentsReference = database.getReference("appointments");
         usersReference = database.getReference("users");
-        doctorOfficeReference = database.getReference("doctor office");
+        doctorOfficeReference = database.getReference("DoctorOffice");
         appointmentsWaitListReference = database.getReference("appointmentsWaitList");
         userAppointmentsReference = database.getReference("users").child(currentUser.getUid().toString()).child("appointmentsID");
         fetchAppointments();

@@ -19,22 +19,23 @@
             android:id="@+id/textStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Select" />
+            android:padding="@dimen/default_margin"
+            android:text="@string/select" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/menuStartTime"
             style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Start Time"
-            android:padding="16dp">
+            android:padding="@dimen/default_margin">
 
             <AutoCompleteTextView
                 android:id="@+id/startTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
+                tools:text="8:00"
+                android:hint="@string/start_time"
                 app:simpleItems="@array/start_times" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
@@ -53,15 +54,15 @@
             android:id="@+id/textMonthInAdvance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Month in advance" />
+            android:padding="@dimen/default_margin"
+            android:text="@string/month_in_advance" />
 
         <com.google.android.material.slider.Slider
             android:id="@+id/sliderMonthInAdvance"
             style="@style/Widget.MaterialComponents.Slider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="@dimen/default_margin"
             android:stepSize="1"
             android:thumbTint="@color/material_dynamic_tertiary0"
             android:trackTint="@color/material_dynamic_neutral0"
@@ -85,22 +86,23 @@
             android:id="@+id/textEndTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Select" />
+            android:padding="@dimen/default_margin"
+            android:text="@string/select" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/menuEndTime"
             style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="End Time"
-            android:padding="16dp">
+            android:padding="@dimen/default_margin">
 
             <AutoCompleteTextView
                 android:id="@+id/endTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
+                android:hint="@string/end_time"
+                tools:text="16:00"
                 app:simpleItems="@array/end_times" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
@@ -118,16 +120,16 @@
             android:id="@+id/textUpdatePhoneNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:text="Update Phone Number" />
+            android:paddingHorizontal="@dimen/default_small_margin"
+            android:text="@string/update_phone_number" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/menuUpdatePhoneNumber"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Phone Number"
-            android:padding="16dp">
+            android:hint="@string/phone_number"
+            android:padding="@dimen/default_margin">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phone_number"
@@ -141,8 +143,8 @@
         android:id="@+id/buttonSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Submit"
+        android:layout_marginTop="@dimen/default_margin"
+        android:text="@string/submit"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -152,7 +154,7 @@
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/default_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -162,8 +164,8 @@
             android:id="@+id/showOfficeStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Office Start Time: "
+            android:padding="@dimen/default_margin"
+            android:text="@string/office_start_time"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -171,7 +173,7 @@
             android:id="@+id/officeStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="@dimen/default_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/showOfficeStartTime"
             app:layout_constraintTop_toTopOf="parent"
@@ -181,8 +183,8 @@
             android:id="@+id/showOfficeMonthInAdvance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Month in advance"
+            android:padding="@dimen/default_margin"
+            android:text="@string/month_in_advance"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/showOfficeStartTime" />
 
@@ -190,7 +192,7 @@
             android:id="@+id/officeMonthInAdvance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="@dimen/default_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/showOfficeMonthInAdvance"
             app:layout_constraintTop_toBottomOf="@+id/officeStartTime"
@@ -200,8 +202,8 @@
             android:id="@+id/showOfficeEndTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Office end time:"
+            android:padding="@dimen/default_margin"
+            android:text="@string/office_end_time"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/showOfficeMonthInAdvance" />
 
@@ -209,7 +211,7 @@
             android:id="@+id/officeEndTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="@dimen/default_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/showOfficeEndTime"
             app:layout_constraintTop_toBottomOf="@+id/officeMonthInAdvance"
@@ -219,8 +221,8 @@
             android:id="@+id/showOfficePhoneNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Office phone number:"
+            android:padding="@dimen/default_margin"
+            android:text="@string/office_phone_number"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/showOfficeEndTime" />
@@ -229,7 +231,7 @@
             android:id="@+id/officePhoneNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="@dimen/default_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/showOfficePhoneNumber"
