@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.home;
+package com.example.easydoc.UI.home;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -20,12 +20,11 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         databaseRepository = DatabaseRepository.getInstance();
-        databaseRepository.getDoctorOfficeLiveData().observeForever(doctorOffice -> {
-            doctorOfficeMutableLiveData.setValue(doctorOffice);
-        });
-        nextAppointment = databaseRepository.getNextAppointmentLiveData();
-        isDoctor = databaseRepository.getIsDoctorLiveData();
-        userAccountMutableLiveData = databaseRepository.getCurrentUserLiveData();
+        databaseRepository.getDoctorOfficeLiveData().observeForever(doctorOffice ->
+                doctorOfficeMutableLiveData.setValue(doctorOffice));// set the value of the mutable live data to the value of the live data
+        nextAppointment = databaseRepository.getNextAppointmentLiveData(); // get the next appointment from the database
+        isDoctor = databaseRepository.getIsDoctorLiveData(); // check if the user is a doctor
+        userAccountMutableLiveData = databaseRepository.getCurrentUserLiveData(); // get the current user from the database
     }
 
     public LiveData<DoctorOffice> getDoctorOfficeLiveData() {

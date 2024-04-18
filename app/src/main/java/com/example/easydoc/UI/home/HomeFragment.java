@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.home;
+package com.example.easydoc.UI.home;
 
 import android.content.Intent;
 import android.net.Uri;

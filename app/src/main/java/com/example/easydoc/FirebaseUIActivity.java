@@ -3,18 +3,15 @@ package com.example.easydoc;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
+import android.text.InputType;
 import android.util.Patterns;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Model.UserAccount;
 import com.example.easydoc.databinding.ActivityFirebaseUiactivityBinding;
@@ -22,6 +19,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.firebase.ui.auth.data.model.PhoneNumber;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 public class FirebaseUIActivity extends AppCompatActivity {
     private ActivityFirebaseUiactivityBinding binding;
@@ -46,10 +46,10 @@ public class FirebaseUIActivity extends AppCompatActivity {
     private TextInputLayout nameEditLayout;
 
     private FirebaseAuth mAuth;
+    private TextInputEditText editDate;
+    private MaterialButton saveButton;
+    private MaterialButton signOutButton;
 
-    // Launchers for various activity results
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::handlePermissionResult);
     private final ActivityResultLauncher<Intent> signInLauncher =
             registerForActivityResult(new FirebaseAuthUIActivityResultContract(), this::onSignInResult);
 
@@ -58,40 +58,53 @@ public class FirebaseUIActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityFirebaseUiactivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-//        DoctorOffice doctorOffice=new DoctorOffice("HaAlonim Blvd 5, Be'er Ya'akov","EasyDoc","Dr Rick Sanchez",
-//                "0547773686","HealthOffice@mail.com","8:30","9:30","30","1");
-//        DatabaseReference officeReference = FirebaseDatabase.getInstance().getReference("DoctorOffice");
-//        officeReference.setValue(doctorOffice);
-        mAuth = FirebaseAuth.getInstance();
-        initializeUI();
-        checkCurrentUser();
+        //addDoctorOffice(); // Uncomment this line to add a doctor office to the database
+        mAuth = FirebaseAuth.getInstance(); // Initialize Firebase Auth
+        setupUI(); // Initialize UI components
+        initUI(); // Initialize UI state
+        checkCurrentUser(); // Check if user is already signed in
     }
 
-    private void initializeUI() {
-        binding.signOutButton.setOnClickListener(v -> signOut());
-        binding.editDate.setOnClickListener(v -> showDatePickerDialog());
-        binding.saveButton.setOnClickListener(v -> attemptSaveUserInformation());
+    private static void addDoctorOffice() {
+        DoctorOffice doctorOffice = new DoctorOffice("HaAlonim Blvd 5, Be'er Ya'akov", "EasyDoc", "Dr Rick Sanchez",
+                "0547773686", "HealthOffice@mail.com", "8:30", "9:30", "30", "1");
+        DatabaseReference officeReference = FirebaseDatabase.getInstance().getReference("DoctorOffice");
+        officeReference.setValue(doctorOffice);
+    }
+
+    //Binding all the components
+    private void setupUI() {
         emailEdit = binding.editEmail;
         emailEditLayout = binding.editEmailLayout;
         phoneEdit = binding.editPhoneNumber;
         phoneEditLayout = binding.editPhoneNumberLayout;
         nameEdit = binding.editName;
         nameEditLayout = binding.editNameLayout;
+        signOutButton = binding.signOutButton;
+        editDate = binding.editDate;
+        saveButton = binding.saveButton;
+
     }
 
-    private void handlePermissionResult(boolean isGranted) {
-        if (!isGranted) {
-            Toast.makeText(this, "Permission denied. Cannot post notifications.", Toast.LENGTH_SHORT).show();
-        }
+    private void initUI() {
+        signOutButton.setOnClickListener(v -> signOut());
+        editDate.setOnClickListener(v -> {
+            editDate.setError(null); // Clear any previous error
+            showDatePickerDialog();
+        });
+        saveButton.setOnClickListener(v -> attemptSaveUserInformation());
+        phoneEdit.setInputType(InputType.TYPE_CLASS_PHONE);
+        phoneEdit.setOnClickListener(v -> phoneEditLayout.setError(null));
     }
+
 
     private void checkCurrentUser() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            promptForSignIn();
+            promptForSignIn(); //No user is loged in, Initiate sign in
         } else {
-            updateUIWithUserDetails(currentUser);
-            checkUserExistence(currentUser.getUid());
+            updateUIWithUserDetails(currentUser); //User is already signed in, update UI with user details
+            checkUserExistence(currentUser.getUid()); //Check if user exists in the database
         }
     }
 
@@ -121,14 +134,12 @@ public class FirebaseUIActivity extends AppCompatActivity {
     private void handleSignInFailure(IdpResponse response) {
         if (response == null) {
             Toast.makeText(this, "Sign-in cancelled by user.", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.e("SignInError", "Error during sign-in: " + response.getError().getMessage());
         }
     }
-
+    //Update the UI with the user details
     private void updateUIWithUserDetails(FirebaseUser user) {
         emailEdit.setText(user.getEmail());
-        emailEdit.setEnabled(user.getEmail() == null || user.getEmail().isEmpty());
+        emailEdit.setEnabled(user.getEmail() == null || user.getEmail().isEmpty()); // Disable email field if email is already set
         nameEdit.setText(user.getDisplayName());
         phoneEdit.setText(user.getPhoneNumber());
         phoneEdit.setEnabled(user.getPhoneNumber() == null || user.getPhoneNumber().isEmpty());
@@ -138,15 +149,16 @@ public class FirebaseUIActivity extends AppCompatActivity {
         AuthUI.getInstance().signOut(this).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 resetUIPostSignOut();
+                recreate();
             }
         });
     }
-
+    //Reset the UI after sign out
     private void resetUIPostSignOut() {
         emailEdit.setText("");
         nameEdit.setText("");
         phoneEdit.setText("");
-        binding.editDate.setText("");
+        editDate.setText("");
     }
 
     private void showDatePickerDialog() {
@@ -155,33 +167,46 @@ public class FirebaseUIActivity extends AppCompatActivity {
     }
 
     private void setDate(DatePicker view, int year, int month, int dayOfMonth) {
-        String selectedDate = String.format("%d/%d/%d", dayOfMonth, month + 1, year);
-        binding.editDate.setText(selectedDate);
+        String selectedDate = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
+        editDate.setText(selectedDate);
     }
-
+    //Validate the phone number
+    private boolean checkPhoneNumber(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if (!Character.isDigit(string.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    //Validate the inputs
     private boolean validateInputs() {
-        if (nameEdit.getText().toString().isEmpty()) {
+        if (Objects.requireNonNull(nameEdit.getText()).toString().isEmpty()) {
             nameEditLayout.setError("Name is required");
             return false;
         }
-        String email = binding.editEmail.getText().toString();
+        String email = Objects.requireNonNull(binding.editEmail.getText()).toString();
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditLayout.setError("Please make sure the email is valid");
             return false;
         }
-        if (phoneEdit.getText().toString().isEmpty()) {
+        if (Objects.requireNonNull(phoneEdit.getText()).toString().isEmpty() || !checkPhoneNumber(phoneEdit.getText().toString())) {
             phoneEditLayout.setError("Phone is required");
+            return false;
+        }
+        if (Objects.requireNonNull(editDate.getText()).toString().isEmpty()) {
+            editDate.setError("Date is required");
             return false;
         }
         return true;
     }
-
+    //Save the user information if the inputs are valid
     private void attemptSaveUserInformation() {
         if (validateInputs()) {
             saveUserInformation();
         }
     }
-
+    //Save the user data to the database
     private void saveUserInformation() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
@@ -192,7 +217,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
         mDatabase.orderByChild("doctor").equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean isDoctor = !snapshot.exists(); // If no doctor exists, this user can be the doctor.
+                boolean isDoctor = !snapshot.exists(); // If no doctor exists, this user will be the doctor.
 
                 UserAccount newUser = new UserAccount(
                         user.getUid(),
@@ -219,13 +244,6 @@ public class FirebaseUIActivity extends AppCompatActivity {
 
             }
         });
-//        mDatabase.child(user.getUid()).setValue(new UserAccount(user.getUid(),
-//                nameEdit.getText().toString(),
-//                emailEdit.getText().toString(),
-//                phoneEdit.getText().toString(),
-//                binding.editDate.getText().toString(), false))
-//        ;
-//        navigateToMainActivity();
     }
 
     private void checkUserExistence(String uid) {
@@ -244,4 +262,6 @@ public class FirebaseUIActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+
 }

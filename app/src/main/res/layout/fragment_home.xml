@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:paddingBottom="?attr/actionBarSize"
 
-    tools:context=".ui.home.HomeFragment">
+    tools:context=".UI.home.HomeFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/doctor_name"

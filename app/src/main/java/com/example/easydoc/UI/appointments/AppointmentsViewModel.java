@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.appointments;
+package com.example.easydoc.UI.appointments;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -71,7 +71,7 @@ public class AppointmentsViewModel extends ViewModel {
                     Appointment appointment = snapshot.getValue(Appointment.class);
                     if (appointment != null && appointment.getDate() != null) {
                         String date = appointment.getDate();
-                        dateCounts.put(date, dateCounts.getOrDefault(date, 0) + 1);
+                        dateCounts.put(date, dateCounts.getOrDefault(date, 0) + 1); // Increment the count for the date
                     }
                 }
 
@@ -79,7 +79,7 @@ public class AppointmentsViewModel extends ViewModel {
                 for (Map.Entry<String, Integer> entry : dateCounts.entrySet()) {
                     repository.getDoctorOfficeLiveData().observeForever(doctorOffice -> {
                         if (doctorOffice != null) {
-                            if (entry.getValue() > repository.appointmentsInDay()) {
+                            if (entry.getValue() > repository.appointmentsInDay()) { // If the number of appointments is greater than the maximum allowed
                                 Calendar date = Helper.stringToCalendar(entry.getKey());
                                 if (date != null) {
                                     busyDates.add(date);
@@ -118,7 +118,6 @@ public class AppointmentsViewModel extends ViewModel {
         List<Timepoint> disabledTimepoints = new ArrayList<>();
         for (Appointment appointment : appointments) {
             if (appointment.getDate() != null && appointment.getDate().equals(date)) {
-                // Assuming your Appointment model's time is stored as a String in "HH:mm" format
                 String[] parts = appointment.getTime().split(":");
                 int hours = Integer.parseInt(parts[0]);
                 int minutes = Integer.parseInt(parts[1]);
@@ -133,10 +132,6 @@ public class AppointmentsViewModel extends ViewModel {
     public void addAppointment(Appointment appointment, Repeat repeat, Due due) {
         repository.insertAppointment(appointment, repeat, due);
     }
-    public LiveData<Boolean> isDoctor(){
-        return repository.getIsDoctorLiveData();
-    }
-
     @Override
     protected void onCleared() {
         super.onCleared();

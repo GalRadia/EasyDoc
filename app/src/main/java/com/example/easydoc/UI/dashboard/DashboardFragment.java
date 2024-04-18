@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.dashboard;
+package com.example.easydoc.UI.dashboard;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.easydoc.Adapters.AppointmentAdapter;
 import com.example.easydoc.Interfaces.AppointmentCallback;
 import com.example.easydoc.Model.Appointment;
-import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.databinding.FragmentDashboardBinding;
 import com.google.android.material.button.MaterialButton;
 
@@ -72,8 +71,8 @@ public class DashboardFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewPassedAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new AppointmentAdapter(getContext(), new ArrayList<>(),false);
-        adapterPassedAppointments = new AppointmentAdapter(getContext(), new ArrayList<>(),true);
+        adapter = new AppointmentAdapter(getContext(), new ArrayList<>(),false); // false for not passed appointments
+        adapterPassedAppointments = new AppointmentAdapter(getContext(), new ArrayList<>(),true); // true for passed appointments
 
         setupAdapterCallbacks(adapter);
         setupAdapterCallbacks(adapterPassedAppointments);
@@ -100,6 +99,9 @@ public class DashboardFragment extends Fragment {
     }
 
     private void observeLiveData() {
+        // Update the list when the data changes
+        // This is a LiveData object, so it will automatically update the UI when the data changes
+        // the doctor can see all appointments, the user can see only his appointments
         dashboardViewModel.getText().observe(getViewLifecycleOwner(), text -> binding.textDashboard.setText(text));
         dashboardViewModel.isDoctor().observe(getViewLifecycleOwner(), isDoctor -> {
             LiveData<List<Appointment>> appointmentsLiveData = isDoctor ? dashboardViewModel.getAppointments() : dashboardViewModel.getUserAppointments();

@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.settings;
+package com.example.easydoc.UI.settings;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -48,6 +48,7 @@ public class SettingsViewModel extends ViewModel {
         }
     }
 
+    // Destroy the instance of the database repository when the view model is cleared
     @Override
     protected void onCleared() {
         super.onCleared();

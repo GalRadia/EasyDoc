@@ -25,45 +25,29 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private ActivityMainBinding binding;
     private boolean mLocationPermissionGranted;
-    AppBarConfiguration appBarConfiguration= new AppBarConfiguration.Builder(
-            R.id.navigation_home, R.id.navigation_dashboard, R.id.nested_appointments, R.id.navigation_office_settings)
-            .build();
-
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // FCM SDK (and your app) can post notifications.
-                } else {
-                    // TODO: Inform user that that your app will not show notifications.
-                }
-            });
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //
-
-        //locationPremmition();
-
-        //
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_home, R.id.navigation_dashboard, R.id.nested_appointments, R.id.navigation_office_settings)
+                .build();
+        locationPremmition();
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        DatabaseRepository repo=DatabaseRepository.getInstance();
-        LiveData<Boolean> isDoctor=repo.getIsDoctorLiveData();
+        DatabaseRepository repo = DatabaseRepository.getInstance();
+        LiveData<Boolean> isDoctor = repo.getIsDoctorLiveData();
         navView.getMenu().findItem(R.id.navigation_office_settings).setVisible(false);
+        // if the user is a doctor, show the office settings
+        // otherwise, show the appointments
         isDoctor.observe(this, aBoolean -> {
-            if(aBoolean){
+            if (aBoolean) {
                 navView.getMenu().findItem(R.id.navigation_office_settings).setVisible(true);
                 navView.getMenu().findItem(R.id.nested_appointments).setVisible(false);
             }
 
         });
-
 
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
@@ -95,15 +79,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-       // DatabaseRepository.destroyInstance();
+        // DatabaseRepository.destroyInstance();
     }
 
+    // This method is called when the user presses the back button
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
-
 
 
     @Override
@@ -121,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 
 
 }

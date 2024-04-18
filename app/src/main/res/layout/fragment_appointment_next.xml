@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.appointments.AppointmentNextFragment">
+    tools:context=".UI.appointments.AppointmentNextFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.appointments.AppointmentNextFragment">
+        tools:context=".UI.appointments.AppointmentNextFragment">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editMessageLayout"

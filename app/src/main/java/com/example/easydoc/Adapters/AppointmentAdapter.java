@@ -32,6 +32,7 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     private boolean isPass;
 
     public AppointmentAdapter(Context context, List<Appointment> appointments, boolean isPass) {
+        // isPass is a boolean that is used to determine if the recycler will be a passed appointment or not
         this.context = context;
         SortedList<Appointment> srtl = new SortedList<>(Appointment.class, new SortedListComperator());
         srtl.addAll(appointments);

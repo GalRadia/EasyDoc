@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.appointments.AppointmentsFragment"
+    tools:context=".UI.appointments.AppointmentsFragment"
     android:paddingBottom="?attr/actionBarSize">
 
 
@@ -74,14 +74,15 @@
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/repeatToggleGroup"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:selectionRequired="true"
         app:checkedButton="@id/noRepeat"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appointmentTimeLayout">
+        app:layout_constraintTop_toBottomOf="@+id/appointmentTimeLayout"
+        app:selectionRequired="true"
+        app:singleSelection="true">
 
 
         <com.google.android.material.button.MaterialButton

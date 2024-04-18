@@ -90,14 +90,14 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
 
 
-    //implementation(libs.firebase.ui.auth)
+    //implementation(libs.firebase.UI.auth)
 
     // Required only if Facebook login support is required
     // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
 //    implementation 'com.facebook.android:facebook-android-sdk:8.x'
 
     // implementation(libs.firebase.database)
-    //  implementation(libs.firebase.ui.auth)
+    //  implementation(libs.firebase.UI.auth)
     //    implementation("com.wdullaer:materialdatetimepicker:4.2.3")
     // implementation(libs.gms.play.services.auth)
     //  implementation(libs.firebase.messaging)

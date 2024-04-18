@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.settings;
+package com.example.easydoc.UI.settings;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -48,6 +48,18 @@ public class SettingsFragment extends Fragment {
 
     }
 
+    public void setupUI(){
+        selectStartTime = binding.startTime;
+        selectEndTime = binding.endTime;
+        textInputEditText = binding.phoneNumber;
+        submitButton = binding.buttonSubmit;
+        startTime = binding.officeStartTime;
+        endTime = binding.officeEndTime;
+        monthInAdvance = binding.officeMonthInAdvance;
+        phoneNumber = binding.officePhoneNumber;
+        slider=binding.sliderMonthInAdvance;
+    }
+
     private void initUI() {
         mViewModel.getDoctorOfficeLiveData().observe(getViewLifecycleOwner(), doctorOffice -> {
             startTime.setText(doctorOffice.getStartTime());
@@ -63,18 +75,6 @@ public class SettingsFragment extends Fragment {
             mViewModel.setPhone(textInputEditText.getText().toString());
             Toast.makeText(getContext(), "Settings Updated", Toast.LENGTH_SHORT).show();
         });
-    }
-
-    public void setupUI(){
-        selectStartTime = binding.startTime;
-        selectEndTime = binding.endTime;
-        textInputEditText = binding.phoneNumber;
-        submitButton = binding.buttonSubmit;
-        startTime = binding.officeStartTime;
-        endTime = binding.officeEndTime;
-        monthInAdvance = binding.officeMonthInAdvance;
-        phoneNumber = binding.officePhoneNumber;
-        slider=binding.sliderMonthInAdvance;
     }
 
 

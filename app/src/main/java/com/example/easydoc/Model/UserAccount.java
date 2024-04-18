@@ -7,7 +7,7 @@ public class UserAccount extends User{
 
    private List<String> appointmentsList;
 
-    private boolean doctor;
+    private boolean doctor;// true if the user is a doctor
 
     public UserAccount(String uid, String name, String email, String phoneNumber, String dateOfBirth , boolean doctor) {
         super(uid, name, email, phoneNumber, dateOfBirth);

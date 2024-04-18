@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.dashboard;
+package com.example.easydoc.UI.dashboard;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -30,9 +30,6 @@ public class DashboardViewModel extends ViewModel {
         return repository.getAppointmentsFromUser();
     }
 
-    public LiveData<List<UserAccount>> getUsers() {
-        return repository.getUsersLiveData();
-    }
     public LiveData<List<Appointment>> getPassedAppointments() {
         return repository.getPassedAppointmentsLiveData();
     }

@@ -30,14 +30,12 @@ import java.util.Objects;
 public class DatabaseRepository {
     private static DatabaseRepository instance;
     private final MutableLiveData<UserAccount> userAccountLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> doctorNameLiveData = new MutableLiveData<>();
     private final MutableLiveData<Appointment> nextAppointmentLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> passedAppointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> userAppointmentsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Appointment>> userPassedAppointmentsLiveData = new MutableLiveData<>();
     public final MutableLiveData<Map<String, String>> appointmentsWaitListLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<List<UserAccount>> usersLiveData = new MutableLiveData<>();
     private final DatabaseReference doctorOfficeReference;
     private final DatabaseReference appointmentsReference;
@@ -45,13 +43,14 @@ public class DatabaseRepository {
     private final DatabaseReference appointmentsWaitListReference;
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
-    private final MutableLiveData<FirebaseUser> currentUserLiveData = new MutableLiveData<>();
     private final DatabaseReference userAppointmentsReference;
     private final MutableLiveData<DoctorOffice> doctorOfficeMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isDoctorLiveData = new MutableLiveData<>();
 
-
+    // Singleton pattern
     private DatabaseRepository() {
+        // Initialize Firebase references
+        // Fetch data from Firebase and set it in LiveData
         currentUser = mAuth.getCurrentUser();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         appointmentsReference = database.getReference("appointments");
@@ -69,6 +68,18 @@ public class DatabaseRepository {
         fetchCurrentUser();
     }
 
+    public static synchronized DatabaseRepository getInstance() {
+        // Singleton pattern
+        if (instance == null) {
+            instance = new DatabaseRepository();
+        }
+        return instance;
+    }
+
+    public static void destroyInstance() {
+        instance = null;
+    }
+
     private void fetchCurrentUser() {
         usersLiveData.observeForever(users -> {
             for (UserAccount user : users) {
@@ -81,19 +92,43 @@ public class DatabaseRepository {
 
     }
 
-    public LiveData<UserAccount> getCurrentUserLiveData() {
-        return userAccountLiveData;
+    public void fetchNextAppointment() {
+        // Observe the LiveData for changes in the isDoctor value
+        // if the user is a doctor, get the next appointment from the appointments list
+        // if the user is a patient, get the next appointment from the user's appointments list
+        isDoctorLiveData.observeForever(isDoctor -> {
+            if (isDoctor) {
+                appointmentsLiveData.observeForever(appointments -> {
+                    Appointment nextAppointment = findNextAppointment();
+                    if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
+                        nextAppointmentLiveData.postValue(nextAppointment);
+                    } else {
+                        nextAppointmentLiveData.postValue(null);
+                    }
+                });
+            } else {
+                userAppointmentsLiveData.observeForever(appointments -> {
+                    Appointment nextAppointment = findNextAppointment();
+                    if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
+                        nextAppointmentLiveData.postValue(nextAppointment);
+                    } else {
+                        nextAppointmentLiveData.postValue(null);
+                    }
+                });
+            }
+        });
     }
 
-
     private void fetchAppointmentsWaitList() {
+        // Fetch the appointments wait list from Firebase and set it in LiveData
+        // Only fetch appointments that are not passed
         appointmentsWaitListReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Map<String, String> appointmentsWaitList = new HashMap<>();
                 for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
                     String date = appointmentSnapshot.getValue(String.class);
-                    if (date != null) {
+                    if (date != null && !Helper.isAppointmentPassed(date, "00:00")) {
                         appointmentsWaitList.put(appointmentSnapshot.getKey(), date);
                     }
                 }
@@ -102,12 +137,14 @@ public class DatabaseRepository {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Log error
+
             }
         });
     }
 
     private void fetchDoctorOffice() {
+        // Fetch the doctor's office details from Firebase and set it in LiveData
+        // This is used to display the doctor's office details in the UI
         doctorOfficeReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -121,20 +158,6 @@ public class DatabaseRepository {
             }
         });
     }
-
-
-    public static void destroyInstance() {
-        instance = null;
-    }
-
-
-    public static synchronized DatabaseRepository getInstance() {
-        if (instance == null) {
-            instance = new DatabaseRepository();
-        }
-        return instance;
-    }
-
 
     public void fetchAppointmentsForUser() {
 
@@ -163,7 +186,8 @@ public class DatabaseRepository {
     }
 
     private void fetchAppointments() {
-        //removePassedAppointments();
+        // Fetch all appointments from Firebase and set them in LiveData
+        // Separate the appointments into two lists: passed and upcoming
         appointmentsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -188,6 +212,8 @@ public class DatabaseRepository {
 
 
     private void fetchUsers() {
+        // Fetch all users from Firebase and set them in LiveData
+        // Also, fetch the appointments list for each user
         usersReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -219,6 +245,55 @@ public class DatabaseRepository {
         });
     }
 
+    private void fetchAppointmentsByIds(List<String> appointmentIds) {
+        // Fetch the appointments details using the IDs and set them in LiveData
+        appointmentsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Appointment> appointments = new ArrayList<>();
+                List<Appointment> passedAppointments = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if (appointmentIds.contains(snapshot.getValue(Appointment.class).getId())) {
+                        Appointment appointment = snapshot.getValue(Appointment.class);
+                        if (Helper.isAppointmentPassed(appointment.getDate(), appointment.getTime())) {
+                            passedAppointments.add(appointment);
+                        } else appointments.add(appointment);
+                    }
+                }
+                // Update the LiveData with the filtered list of appointments.
+                userAppointmentsLiveData.postValue(appointments);
+                userPassedAppointmentsLiveData.postValue(passedAppointments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle potential errors.
+            }
+        });
+    }
+
+
+    public void fetchCurrentUserDoctor() {
+        // Fetch the user's doctor status from Firebase and set it in LiveData
+        usersReference.child(currentUser.getUid()).child("doctor").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean isDoctor = snapshot.getValue(Boolean.class);
+                isDoctorLiveData.postValue(isDoctor != null && isDoctor);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Log error or set LiveData value to handle the error state
+                isDoctorLiveData.postValue(false); // Optionally, handle this differently to distinguish between false and error.
+            }
+        });
+    }
+
+    public LiveData<UserAccount> getCurrentUserLiveData() {
+        return userAccountLiveData;
+    }
+
     public LiveData<List<Appointment>> getAppointmentsLiveData() {
         return appointmentsLiveData;
     }
@@ -245,6 +320,84 @@ public class DatabaseRepository {
 
     public LiveData<Boolean> getIsDoctorLiveData() {
         return isDoctorLiveData;
+    }
+
+    public LiveData<Appointment> getNextAppointmentLiveData() {
+        return nextAppointmentLiveData;
+    }
+
+    private String getDateFromAppointmentID(String appointmentID) {
+        String date = "";
+        for (Appointment appointment : appointmentsLiveData.getValue()) {
+            if (appointment.getId().equals(appointmentID)) {
+                date = appointment.getDate();
+                break;
+            }
+        }
+        return date;
+    }
+
+    public List<String> getWailistDatesList() {
+        List<String> dates = new ArrayList<>();
+        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
+            isDoctorLiveData.observeForever(isDoctor -> {
+                if (!isDoctor) {
+                    if (entry.getKey().equals(currentUser.getUid())) {
+                        dates.add(entry.getValue());
+                    }
+                } else dates.add(entry.getValue());
+            });
+        }
+        return dates;
+    }
+
+    private String getNameFromUserID(String userID) {
+        String name = "";
+        for (UserAccount user : usersLiveData.getValue()) {
+            if (user.getUid().equals(userID)) {
+                name = user.getName();
+                break;
+            }
+        }
+        return name;
+    }
+
+    public AbstractMap.SimpleEntry<String, String> getAppointmentFromWaitingList(String date) {
+        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
+            if (entry.getValue().equals(date)) {
+                return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
+    }
+
+
+    public void setOfficeEndTime(String string) {
+        doctorOfficeReference.child("endTime").setValue(string);
+    }
+
+    public void setOfficeMonthsInAdvance(String string) {
+        doctorOfficeReference.child("monthsInAdvance").setValue(string);
+    }
+
+    public void setOfficePhone(String string) {
+        doctorOfficeReference.child("phone").setValue(string);
+    }
+
+    public void setOfficeStartTime(String string) {
+        doctorOfficeReference.child("startTime").setValue(string);
+    }
+
+    public Appointment findNextAppointment() {
+        List<Appointment> appointmentList;
+        if (isDoctorLiveData.getValue())
+            appointmentList = appointmentsLiveData.getValue();
+        else appointmentList = userAppointmentsLiveData.getValue();
+        if (appointmentList == null || appointmentList.isEmpty()) {
+            return null;
+        }
+        Collections.sort(appointmentList);
+        return appointmentList.get(0);
     }
 
     public void removeAppointment(String appointmentID) {
@@ -284,6 +437,8 @@ public class DatabaseRepository {
     }
 
     public boolean dateAvailable(String date) {
+        // Check if the date has available appointments
+        // If the date has less appointments than the maximum allowed, return true
         int count = 0;
         for (Appointment appointment : Objects.requireNonNull(appointmentsLiveData.getValue())) {
             if (appointment.getDate().equals(date)) {
@@ -294,34 +449,13 @@ public class DatabaseRepository {
     }
 
     public int appointmentsInDay() {
+        // Calculate the number of appointments that can be scheduled in a day
         int duration = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getAppointmentDuration());
         int startHour = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getStartTime().split(":")[0]);
         int endHour = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getEndTime().split(":")[0]);
         return (endHour - startHour) * 60 / duration;
     }
 
-    private String getNameFromUserID(String userID) {
-        String name = "";
-        for (UserAccount user : usersLiveData.getValue()) {
-            if (user.getUid().equals(userID)) {
-                name = user.getName();
-                break;
-            }
-        }
-        return name;
-    }
-
-
-    private String getDateFromAppointmentID(String appointmentID) {
-        String date = "";
-        for (Appointment appointment : appointmentsLiveData.getValue()) {
-            if (appointment.getId().equals(appointmentID)) {
-                date = appointment.getDate();
-                break;
-            }
-        }
-        return date;
-    }
 
     public void addToWaitingList(String userID, String date) {
         appointmentsWaitListReference.child(userID).setValue(date);
@@ -331,15 +465,6 @@ public class DatabaseRepository {
         appointmentsWaitListReference.child(userID).removeValue();
     }
 
-
-    public AbstractMap.SimpleEntry<String, String> getAppointmentFromWaitingList(String date) {
-        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
-            if (entry.getValue().equals(date)) {
-                return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue());
-            }
-        }
-        return null;
-    }
 
     public void updateText(String appointmentID, String text) {
         appointmentsReference.child(appointmentID).child("text").setValue(text);
@@ -352,8 +477,6 @@ public class DatabaseRepository {
         dueCalendar = Helper.stringToCalendar(appointment.getDate());
         dueCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(appointment.getTime().split(":")[0]));
         dueCalendar.set(Calendar.MINUTE, Integer.parseInt(appointment.getTime().split(":")[1]));
-        // Assuming Appointment has a Date field
-
         // Adjust the due date based on the selection
         switch (due) {
             case ONE_MONTH:
@@ -386,7 +509,7 @@ public class DatabaseRepository {
                 return;
         }
 
-        // Handle repeat logic
+        // Repeat logic
         Calendar repeatCalendar = Helper.stringToCalendar(appointment.getDate());
         while (repeatCalendar.getTime().before(dueDate)) {
             String newDate = Helper.calendarToString(repeatCalendar);
@@ -412,8 +535,8 @@ public class DatabaseRepository {
     }
 
     private void saveAppointment(Appointment appointment, String appointmentDate) throws RuntimeException {
-        Appointment newAppointment = new Appointment(appointment); // Assuming you have a copy constructor or method to duplicate
-        newAppointment.setDate(appointmentDate);
+        Appointment newAppointment = new Appointment(appointment); // Copy the appointment
+        newAppointment.setDate(appointmentDate); // Set the new date
 
         appointmentsReference.child(newAppointment.getId()).setValue(newAppointment).addOnFailureListener(e -> {
             // Handle error
@@ -427,154 +550,6 @@ public class DatabaseRepository {
                 .addOnFailureListener(e -> {
                     throw new RuntimeException("Failed to save appointment");
                 });
-    }
-
-    private void fetchAppointmentsByIds(List<String> appointmentIds) {
-        appointmentsReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<Appointment> appointments = new ArrayList<>();
-                List<Appointment> passedAppointments = new ArrayList<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if (appointmentIds.contains(snapshot.getValue(Appointment.class).getId())) {
-                        Appointment appointment = snapshot.getValue(Appointment.class);
-                        if (Helper.isAppointmentPassed(appointment.getDate(), appointment.getTime())) {
-                            passedAppointments.add(appointment);
-                        } else appointments.add(appointment);
-                    }
-                }
-                // Update the LiveData with the filtered list of appointments.
-                userAppointmentsLiveData.postValue(appointments);
-                userPassedAppointmentsLiveData.postValue(passedAppointments);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle potential errors.
-            }
-        });
-    }
-
-
-    public void fetchCurrentUserDoctor() {
-        usersReference.child(currentUser.getUid()).child("doctor").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Boolean isDoctor = snapshot.getValue(Boolean.class);
-                isDoctorLiveData.postValue(isDoctor != null && isDoctor);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Log error or set LiveData value to handle the error state
-                isDoctorLiveData.postValue(false); // Optionally, handle this differently to distinguish between false and error.
-            }
-        });
-    }
-
-
-    private void removePassedAppointments() {
-        appointmentsReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
-                    Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
-                    if (appointment != null) {
-                        String date = appointment.getDate();
-                        String time = appointment.getTime();
-                        if (Helper.isAppointmentPassed(date, time)) {
-                            removeAppointment(appointment.getId());
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle potential errors
-            }
-        });
-
-    }
-
-
-    public List<String> getWailistDatesList() {
-        List<String> dates = new ArrayList<>();
-        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
-            isDoctorLiveData.observeForever(isDoctor -> {
-                if (!isDoctor) {
-                    if (entry.getKey().equals(currentUser.getUid())) {
-                        dates.add(entry.getValue());
-                    }
-                }
-                else dates.add(entry.getValue());
-            });
-        }
-        return dates;
-    }
-
-    public List<String> getAllWaitlistDates() {
-        List<String> dates = new ArrayList<>();
-        for (Map.Entry<String, String> entry : appointmentsWaitListLiveData.getValue().entrySet()) {
-            dates.add(entry.getValue());
-        }
-        return dates;
-    }
-
-    public void setOfficeStartTime(String string) {
-        doctorOfficeReference.child("startTime").setValue(string);
-    }
-
-    public void setOfficeEndTime(String string) {
-        doctorOfficeReference.child("endTime").setValue(string);
-    }
-
-    public void setOfficeMonthsInAdvance(String string) {
-        doctorOfficeReference.child("monthsInAdvance").setValue(string);
-    }
-
-    public void setOfficePhone(String string) {
-        doctorOfficeReference.child("phone").setValue(string);
-    }
-
-    public void fetchNextAppointment() {
-        isDoctorLiveData.observeForever(isDoctor -> {
-            if (isDoctor) {
-                appointmentsLiveData.observeForever(appointments -> {
-                    Appointment nextAppointment = findNextAppointment();
-                    if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
-                        nextAppointmentLiveData.postValue(nextAppointment);
-                    } else {
-                        nextAppointmentLiveData.postValue(null); // Handle no upcoming appointments
-                    }
-                });
-            } else {
-                userAppointmentsLiveData.observeForever(appointments -> {
-                    Appointment nextAppointment = findNextAppointment();
-                    if (nextAppointment != null && appointments != null && !appointments.isEmpty()) {
-                        nextAppointmentLiveData.postValue(nextAppointment);
-                    } else {
-                        nextAppointmentLiveData.postValue(null); // Handle no upcoming appointments
-                    }
-                });
-            }
-        });
-    }
-
-    public LiveData<Appointment> getNextAppointmentLiveData() {
-        return nextAppointmentLiveData;
-    }
-
-    public Appointment findNextAppointment() {
-        List<Appointment> appointmentList;
-        if (isDoctorLiveData.getValue())
-            appointmentList = appointmentsLiveData.getValue();
-        else appointmentList = userAppointmentsLiveData.getValue();
-        if (appointmentList == null || appointmentList.isEmpty()) {
-            return null;
-        }
-        Collections.sort(appointmentList);
-        return appointmentList.get(0);
     }
 
 

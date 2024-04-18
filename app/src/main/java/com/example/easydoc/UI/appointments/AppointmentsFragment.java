@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.appointments;
+package com.example.easydoc.UI.appointments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -73,7 +73,7 @@ public class AppointmentsFragment extends Fragment {
 
     private void InitUI(AppointmentsViewModel appointmentsViewModel, View root) {
         waitListButton.setOnClickListener(v -> addAppointmentToWaitList(appointmentsViewModel));
-        repeatToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+        repeatToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> { // Show the duration toggle group if the user selects a recurrent appointment
             if (isChecked) {
                 if (checkedId == R.id.OnceWeek || checkedId == R.id.Once2Weeks) {
                     durationToggleGroup.setVisibility(View.VISIBLE);
@@ -85,7 +85,7 @@ public class AppointmentsFragment extends Fragment {
             }
         });
 
-        appointmentTime.setEnabled(false);
+        appointmentTime.setEnabled(false); // Disable the appointment time, the dialog will enable it
 
         nextButton.setOnClickListener(v -> {
             if (!validateText())
@@ -96,9 +96,16 @@ public class AppointmentsFragment extends Fragment {
             bundle.putInt("recurrent", getRepeat().ordinal());
             bundle.putInt("duration", getDuration().ordinal());
             Navigation.findNavController(root).navigate(R.id.action_navigation_appointments_to_appointmentNextFragment, bundle);
-        });
+        }); // Navigate to the next fragment with the appointment details
 
         appointmentDate.setOnClickListener(v -> {
+            /*
+             * Initialize the DatePickerDialog with the disabled times
+             * if the date is today, the minimum time is the current time
+             * if the date is not today, the minimum time is the start time of the doctor's office
+             * I used 3rd party library to handle the time and date pickers picker dialog
+             * because the default android time and date pickers are not user-friendly
+             */
                     this.dpd = new DatePickerDialog();
                     this.dpd = initializeDatePicker();
                     this.tpd = new TimePickerDialog();
@@ -122,6 +129,16 @@ public class AppointmentsFragment extends Fragment {
                 }
         );
         appointmentTime.setOnClickListener(view -> {
+            /*
+                * Initialize the TimePickerDialog with the disabled times
+                * if the date is today, the minimum time is the current time
+                * if the date is not today, the minimum time is the start time of the doctor's office
+                * I used 3rd party library to handle the time and date pickers picker dialog
+                * because the default android time and date pickers are not user-friendly
+                * but the library is not maintained anymore and there are some issues with it
+                * 1. you cant un disable the times so i initialized the time picker dialog every time the user clicks on the time
+                * 2. you can pick the minimum and maximum time twice
+             */
             this.dpd = new DatePickerDialog();
             this.dpd = initializeDatePicker();
             this.tpd = new TimePickerDialog();
@@ -201,18 +218,19 @@ public class AppointmentsFragment extends Fragment {
         int duration = Integer.parseInt(doctorOfficeLiveData.getValue().getAppointmentDuration());
         int currentHourTime = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int currentMinuteTime = Calendar.getInstance().get(Calendar.MINUTE);
-        if (currentMinuteTime > duration)
+        if (currentMinuteTime > duration) // If the current time is greater than the duration, increment the current hour time
             currentHourTime++;
 
 
-        tpd.setTimeInterval(1, duration);
+        tpd.setTimeInterval(1, duration); // Set the time interval to the appointment duration
         Calendar cal = Calendar.getInstance();
         if (cal.get(Calendar.DATE) == Helper.stringToCalendar(appointmentDate.getText().toString()).get(Calendar.DATE)) {
             tpd.setMinTime(currentHourTime, 0, 0);
             if (currentHourTime > eHour) {
                 tpd.setMinTime(sHour, sMinute, 0);
                 tpd.setMaxTime(sHour, sMinute, 0);
-                return tpd;
+                Toast.makeText(getContext(), "End of a day, no time available", Toast.LENGTH_SHORT).show();
+                return tpd; // If the current time is greater than the end time, return the time picker dialog
             }
         } else {
             tpd.setMinTime(sHour, sMinute, 0);
@@ -222,6 +240,15 @@ public class AppointmentsFragment extends Fragment {
 
         tpd.setOnTimeSetListener((view, hourOfDay, minute, second) -> {
             String min = minute > 9 ? "" + minute : "0" + minute;
+            if ((hourOfDay > eHour) || (hourOfDay == eHour && minute > eMinute) ||
+                    (hourOfDay < sHour) || (hourOfDay == sHour && minute < sMinute)) {
+                // Clear the appointment time and date TextViews
+                appointmentTime.setText("");
+                appointmentDate.setText("");
+                // Display a toast message indicating the time is not available
+                Toast.makeText(getContext(), "Time is not available", Toast.LENGTH_SHORT).show();
+                return;
+            }
             appointmentTime.setText(hourOfDay + ":" + min);
         });
         return tpd;
@@ -236,19 +263,11 @@ public class AppointmentsFragment extends Fragment {
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
-        dpd.setFirstDayOfWeek(Calendar.SUNDAY);
-
-        dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
-            String month = monthOfYear < 9 ? "0" + (monthOfYear + 1) : "" + (monthOfYear + 1);
-            String day = dayOfMonth < 10 ? "0" + dayOfMonth : "" + dayOfMonth;
-            appointmentDate.setText(day + "/" + (month) + "/" + year);
-            appointmentTime.setText("");
-
-        });
+        dpd.setFirstDayOfWeek(Calendar.SUNDAY);// Set the first day of the week to Sunday
         DoctorOffice doc = this.doctorOfficeLiveData.getValue();
-        dpd.setMinDate(Calendar.getInstance());
+        dpd.setMinDate(Calendar.getInstance());// Set the minimum date to today
         Calendar maxDate = Calendar.getInstance();
-        maxDate.add(Calendar.MONTH, Integer.parseInt(doc.getMonthsInAdvance()));
+        maxDate.add(Calendar.MONTH, Integer.parseInt(doc.getMonthsInAdvance())); // Set the maximum date to the months in advance
         dpd.setMaxDate(maxDate);
         Calendar calendar = Calendar.getInstance();
         List<Calendar> disabledDays = new ArrayList<>();
@@ -256,11 +275,19 @@ public class AppointmentsFragment extends Fragment {
         int days = Integer.parseInt(doc.getMonthsInAdvance()) * 31;
         for (int i = 0; i < days; i++) {
             if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
-                disabledDays.add((Calendar) calendar.clone());
+                disabledDays.add((Calendar) calendar.clone()); // Add the weekend days to the disabled days
             }
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
         dpd.setDisabledDays(disabledDays.toArray(new Calendar[0]));
+        dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
+            String month = monthOfYear < 9 ? "0" + (monthOfYear + 1) : "" + (monthOfYear + 1);
+            String day = dayOfMonth < 10 ? "0" + dayOfMonth : "" + dayOfMonth;
+            appointmentDate.setText(day + "/" + (month) + "/" + year);
+            appointmentTime.setText(""); // Clear the appointment time
+
+        });
+
 
         return dpd;
     }

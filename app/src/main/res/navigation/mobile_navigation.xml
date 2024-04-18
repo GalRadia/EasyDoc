@@ -7,24 +7,24 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.easydoc.ui.home.HomeFragment"
+        android:name="com.example.easydoc.UI.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/navigation_office_settings"
-        android:name="com.example.easydoc.ui.settings.SettingsFragment"
+        android:name="com.example.easydoc.UI.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_office_settings" />
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.easydoc.ui.dashboard.DashboardFragment"
+        android:name="com.example.easydoc.UI.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
     <navigation android:id="@+id/nested_appointments"
         app:startDestination="@id/navigation_appointments">
         <fragment
             android:id="@+id/appointmentNextFragment"
-            android:name="com.example.easydoc.ui.appointments.AppointmentNextFragment"
+            android:name="com.example.easydoc.UI.appointments.AppointmentNextFragment"
             android:label="@string/title_appointments"
             tools:layout="@layout/fragment_appointment_next">
             <action
@@ -42,7 +42,7 @@
         </fragment>
         <fragment
             android:id="@+id/navigation_appointments"
-            android:name="com.example.easydoc.ui.appointments.AppointmentsFragment"
+            android:name="com.example.easydoc.UI.appointments.AppointmentsFragment"
             android:label="@string/title_appointments"
             tools:layout="@layout/fragment_appointments" >
             <action

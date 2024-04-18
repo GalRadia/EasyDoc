@@ -28,11 +28,6 @@ public class Helper {
         int minutes = Integer.parseInt(timepointString.split(":")[1]);
         return new Timepoint(hourse, minutes);
     }
-//    public static float stringToHour(String timepointString) {
-//        int hourse = Integer.parseInt(timepointString.split(":")[0]);
-//        int minutes = Integer.parseInt(timepointString.split(":")[1]);
-//        return hourse + (float) minutes /60;
-//    }
 
     public static String calendarToString(Calendar calendar) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");

@@ -1,4 +1,4 @@
-package com.example.easydoc.ui.appointments;
+package com.example.easydoc.UI.appointments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,13 +21,10 @@ import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentAppointmentNextBinding;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Calendar;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 public class AppointmentNextFragment extends Fragment {

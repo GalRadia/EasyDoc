@@ -48,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="@dimen/default_margin"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/blue_gray_700"
                     android:textSize="@dimen/default_mid_text_size"
                     tools:text="10/10/2024" />
 
@@ -57,7 +57,7 @@
                     android:id="@+id/appoint_TXT_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/blue_gray_700"
                     android:textSize="@dimen/default_mid_text_size"
                     tools:text="18:30" />
 
@@ -89,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/change"
                     android:textColor="@android:color/white"
-                    app:backgroundTint="#FFD54F"
+                    app:backgroundTint="@color/amber_500"
                     app:cornerRadius="@dimen/default_large_text_size" />
 
                 <!-- Delete Button -->
