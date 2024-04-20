@@ -74,14 +74,24 @@ public class Appointment implements Comparable<Appointment> , Comparator<Appoint
         int thisDay = Integer.parseInt(thisDateParts[0]);
         int otherMonth = Integer.parseInt(otherDateParts[1]);
         int otherDay = Integer.parseInt(otherDateParts[0]);
-
+        int thisHour = Integer.parseInt(this.time.split(":")[0]);
+        int thisMinute = Integer.parseInt(this.time.split(":")[1]);
+        int otherHour = Integer.parseInt(other.getTime().split(":")[0]);
+        int otherMinute = Integer.parseInt(other.getTime().split(":")[1]);
+        if(thisMonth==otherMonth){
+            if(thisDay==otherDay){
+                if(thisHour==otherHour){
+                    return thisMinute-otherMinute;
+                }
+                return thisHour-otherHour;
+            }
+            return thisDay-otherDay;
+        }
         // First compare month
-        if (thisMonth != otherMonth) {
+        else {
             return thisMonth - otherMonth;
         }
 
-        // If months are equal, compare day
-        return thisDay - otherDay;
     }
 
     @Override

@@ -96,7 +96,7 @@ public class AppointmentNextFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_INSERT)
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, c.getTimeInMillis())
-                .putExtra(CalendarContract.Events.TITLE, "Appointment with ")
+                .putExtra(CalendarContract.Events.TITLE, "Appointment with "+doctorOffice.getDoctorName())
                 .putExtra(CalendarContract.Events.EVENT_LOCATION, doctorOffice.getAddress())
                 .putExtra(CalendarContract.Events.DESCRIPTION, appointment.getText())
                 .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY)

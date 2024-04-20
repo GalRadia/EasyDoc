@@ -63,10 +63,37 @@
         android:id="@+id/upcomming_appointments"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_margin"
         android:text="@string/upcomming_appointments"
         android:textSize="@dimen/default_large_text_size"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/noAppointments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/no_appointments"
+        android:textSize="@dimen/default_mid_text_size"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerView"
+        app:layout_constraintStart_toStartOf="@+id/recyclerView"
+        app:layout_constraintTop_toTopOf="@+id/recyclerView" />
+
+    <TextView
+        android:id="@+id/noPassedAppointments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/no_passed_appointments"
+        android:textSize="@dimen/default_mid_text_size"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerViewPassedAppointments"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerViewPassedAppointments"
+        app:layout_constraintStart_toStartOf="@+id/recyclerViewPassedAppointments"
+        app:layout_constraintTop_toTopOf="@+id/recyclerViewPassedAppointments" />
 </androidx.constraintlayout.widget.ConstraintLayout>

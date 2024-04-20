@@ -12,10 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.FragmentOfficeSettingsBinding;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 
 public class SettingsFragment extends Fragment {
@@ -24,13 +26,14 @@ public class SettingsFragment extends Fragment {
     private FragmentOfficeSettingsBinding binding;
     private AutoCompleteTextView selectStartTime;
     private AutoCompleteTextView selectEndTime;
-    private TextInputEditText textInputEditText;
+    private TextInputEditText phoneEditText;
     private MaterialButton submitButton;
     private MaterialTextView startTime;
     private MaterialTextView endTime;
     private MaterialTextView monthInAdvance;
     private MaterialTextView phoneNumber;
     private Slider slider;
+    private TextInputLayout phoneInputLayout;
 
 
 
@@ -51,13 +54,14 @@ public class SettingsFragment extends Fragment {
     public void setupUI(){
         selectStartTime = binding.startTime;
         selectEndTime = binding.endTime;
-        textInputEditText = binding.phoneNumber;
+        phoneEditText = binding.phoneNumber;
         submitButton = binding.buttonSubmit;
         startTime = binding.officeStartTime;
         endTime = binding.officeEndTime;
         monthInAdvance = binding.officeMonthInAdvance;
         phoneNumber = binding.officePhoneNumber;
         slider=binding.sliderMonthInAdvance;
+        phoneInputLayout=binding.menuUpdatePhoneNumber;
     }
 
     private void initUI() {
@@ -68,11 +72,16 @@ public class SettingsFragment extends Fragment {
             phoneNumber.setText(doctorOffice.getPhone());
             slider.setValue(Float.parseFloat(doctorOffice.getMonthsInAdvance()));
         });
+        phoneInputLayout.setOnClickListener(v -> phoneInputLayout.setError(null));
         submitButton.setOnClickListener(v -> {
+           if(!phoneEditText.getText().toString().isEmpty()&&!Helper.checkPhoneNumber(phoneEditText.getText().toString())){
+               phoneInputLayout.setError("Invalid Phone Number");
+               return;
+           }
             mViewModel.setStartTime(selectStartTime.getText().toString());
             mViewModel.setEndTime(selectEndTime.getText().toString());
             mViewModel.setMonthInAdvance((int)slider.getValue() + "");
-            mViewModel.setPhone(textInputEditText.getText().toString());
+            mViewModel.setPhone(phoneEditText.getText().toString());
             Toast.makeText(getContext(), "Settings Updated", Toast.LENGTH_SHORT).show();
         });
     }

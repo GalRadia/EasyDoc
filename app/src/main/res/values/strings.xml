@@ -42,6 +42,8 @@
     <string name="office_phone_number">Office phone number:</string>
     <string name="change">Change</string>
     <string name="delete">Delete</string>
+    <string name="no_appointments">There is no upcomming appointments</string>
+    <string name="no_passed_appointments">There is no passed appointments</string>
     <string-array name="start_times">
         <item>08:00</item>
         <item>08:30</item>

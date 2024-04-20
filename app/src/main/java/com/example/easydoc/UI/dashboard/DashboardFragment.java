@@ -71,15 +71,14 @@ public class DashboardFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewPassedAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new AppointmentAdapter(getContext(), new ArrayList<>(),false); // false for not passed appointments
-        adapterPassedAppointments = new AppointmentAdapter(getContext(), new ArrayList<>(),true); // true for passed appointments
+        adapter = new AppointmentAdapter(getContext(), new ArrayList<>(), false); // false for not passed appointments
+        adapterPassedAppointments = new AppointmentAdapter(getContext(), new ArrayList<>(), true); // true for passed appointments
 
         setupAdapterCallbacks(adapter);
         setupAdapterCallbacks(adapterPassedAppointments);
 
         recyclerView.setAdapter(adapter);
         recyclerViewPassedAppointments.setAdapter(adapterPassedAppointments);
-
 
 
     }
@@ -106,8 +105,22 @@ public class DashboardFragment extends Fragment {
         dashboardViewModel.isDoctor().observe(getViewLifecycleOwner(), isDoctor -> {
             LiveData<List<Appointment>> appointmentsLiveData = isDoctor ? dashboardViewModel.getAppointments() : dashboardViewModel.getUserAppointments();
             LiveData<List<Appointment>> passedAppointmentsLiveData = isDoctor ? dashboardViewModel.getPassedAppointments() : dashboardViewModel.getPassedAppointmentFromUser();
-            appointmentsLiveData.observe(getViewLifecycleOwner(), appointments -> adapter.setAppointments(appointments));
-            passedAppointmentsLiveData.observe(getViewLifecycleOwner(), appointments -> adapterPassedAppointments.setAppointments(appointments));
+            appointmentsLiveData.observe(getViewLifecycleOwner(), appointments -> {
+                if (appointments.isEmpty()) {
+                    binding.noAppointments.setVisibility(View.VISIBLE);
+                } else {
+                    binding.noAppointments.setVisibility(View.GONE);
+                }
+                adapter.setAppointments(appointments);
+            });
+            passedAppointmentsLiveData.observe(getViewLifecycleOwner(), appointments -> {
+                if (appointments.isEmpty()) {
+                    binding.noPassedAppointments.setVisibility(View.VISIBLE);
+                } else {
+                    binding.noPassedAppointments.setVisibility(View.GONE);
+                }
+                adapterPassedAppointments.setAppointments(appointments);
+            });
         });
     }
 

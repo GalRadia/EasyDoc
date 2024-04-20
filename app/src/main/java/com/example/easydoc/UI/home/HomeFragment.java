@@ -188,7 +188,7 @@ public class HomeFragment extends Fragment {
         });
 
         homeViewModel.getDoctorOfficeLiveData().observe(getViewLifecycleOwner(), doctorOffice -> {
-            doctorName.setText(doctorOffice.getDoctorName());
+            doctorName.setText("EasyDoc\n"+doctorOffice.getDoctorName());
         });
         callButton.setOnClickListener(v -> {
             String phone;

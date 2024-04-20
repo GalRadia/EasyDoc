@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.easydoc.Model.DoctorOffice;
 import com.example.easydoc.Model.UserAccount;
+import com.example.easydoc.Utils.Helper;
 import com.example.easydoc.databinding.ActivityFirebaseUiactivityBinding;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
@@ -66,7 +67,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
     }
 
     private static void addDoctorOffice() {
-        DoctorOffice doctorOffice = new DoctorOffice("HaAlonim Blvd 5, Be'er Ya'akov", "EasyDoc", "Dr Rick Sanchez",
+        DoctorOffice doctorOffice = new DoctorOffice("EasyDoc, Tel-Aviv,70300", "EasyDoc", "Dr Rick Sanchez",
                 "0547773686", "HealthOffice@mail.com", "8:30", "9:30", "30", "1");
         DatabaseReference officeReference = FirebaseDatabase.getInstance().getReference("DoctorOffice");
         officeReference.setValue(doctorOffice);
@@ -170,15 +171,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
         String selectedDate = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
         editDate.setText(selectedDate);
     }
-    //Validate the phone number
-    private boolean checkPhoneNumber(String string) {
-        for (int i = 0; i < string.length(); i++) {
-            if (!Character.isDigit(string.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
+
     //Validate the inputs
     private boolean validateInputs() {
         if (Objects.requireNonNull(nameEdit.getText()).toString().isEmpty()) {
@@ -190,7 +183,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
             emailEditLayout.setError("Please make sure the email is valid");
             return false;
         }
-        if (Objects.requireNonNull(phoneEdit.getText()).toString().isEmpty() || !checkPhoneNumber(phoneEdit.getText().toString())) {
+        if (Objects.requireNonNull(phoneEdit.getText()).toString().isEmpty() || !Helper.checkPhoneNumber(phoneEdit.getText().toString())) {
             phoneEditLayout.setError("Phone is required");
             return false;
         }

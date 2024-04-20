@@ -16,7 +16,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
+import java.sql.Time;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -298,9 +300,6 @@ public class DatabaseRepository {
         return appointmentsLiveData;
     }
 
-    public LiveData<List<UserAccount>> getUsersLiveData() {
-        return usersLiveData;
-    }
 
     public LiveData<List<Appointment>> getAppointmentsFromUser() {
         return userAppointmentsLiveData;
@@ -450,10 +449,23 @@ public class DatabaseRepository {
 
     public int appointmentsInDay() {
         // Calculate the number of appointments that can be scheduled in a day
+        String startTime = doctorOfficeMutableLiveData.getValue().getStartTime();
+        String endTime = doctorOfficeMutableLiveData.getValue().getEndTime();
         int duration = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getAppointmentDuration());
-        int startHour = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getStartTime().split(":")[0]);
-        int endHour = Integer.parseInt(doctorOfficeMutableLiveData.getValue().getEndTime().split(":")[0]);
-        return (endHour - startHour) * 60 / duration;
+        int startHour = Integer.parseInt(startTime.split(":")[0]);
+        int endHour = Integer.parseInt(endTime.split(":")[0]);
+        int startMinute = Integer.parseInt(startTime.split(":")[1]);
+        int endMinute = Integer.parseInt(endTime.split(":")[1]);
+
+        // Convert start and end times to minutes since midnight
+        int startMinutes = startHour * 60 + startMinute;
+        int endMinutes = endHour * 60 + endMinute;
+
+        // Calculate total available minutes for appointments
+        int availableMinutes = endMinutes - startMinutes;
+
+        // Return the number of appointments that can be fit into the available time
+        return availableMinutes / duration;
     }
 
 
@@ -511,10 +523,15 @@ public class DatabaseRepository {
 
         // Repeat logic
         Calendar repeatCalendar = Helper.stringToCalendar(appointment.getDate());
+        String text= appointment.getText();
+        int i=1;
         while (repeatCalendar.getTime().before(dueDate)) {
             String newDate = Helper.calendarToString(repeatCalendar);
             if (isDateAndTimeAvailable(newDate, appointment.getTime())) {
                 try {
+                    String newText="No" + i + ". " + text; // Add the appointment number to the text
+                    appointment.setText(newText);
+                    i++;
                     saveAppointment(appointment, newDate);
                 } catch (RuntimeException e) {
                     // Handle error

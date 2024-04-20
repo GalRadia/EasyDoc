@@ -29,21 +29,12 @@ public class SplashScreenActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setupLottieAnimation();
-        performBackgroundTask();
     }
 
 
     private void setupLottieAnimation() {
         lottieAnimationView = binding.animationView;
-        lottieAnimationView.setAnimation("newAnimation.lottie");
-        lottieAnimationView.setAlpha(1.0f);
-        lottieAnimationView.setElevation(10.0f);
-        lottieAnimationView.setTranslationZ(10.0f);
-        lottieAnimationView.setTranslationY(10.0f);
-        lottieAnimationView.setTranslationX(10.0f);
-        lottieAnimationView.setSpeed(1.0f);
-        lottieAnimationView.setRepeatCount(0);
-        lottieAnimationView.setRepeatMode(LottieDrawable.RESTART);
+        lottieAnimationView.setAnimation("medicalCenterAnimation.lottie");
         lottieAnimationView.resumeAnimation();
         lottieAnimationView.addAnimatorListener(new Animator.AnimatorListener() {
             @Override
@@ -53,7 +44,9 @@ public class SplashScreenActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(@NonNull Animator animator) {
-                performBackgroundTask();
+                Intent intent = new Intent(SplashScreenActivity.this, FirebaseUIActivity.class);
+                startActivity(intent);
+                finish();
             }
 
             @Override
@@ -68,24 +61,6 @@ public class SplashScreenActivity extends AppCompatActivity {
         });
     }
 
-    private void performBackgroundTask() {
-        executorService.execute(() -> {
 
-            // Background task logic here
 
-            // Run on UI thread if needed
-            runOnUiThread(() -> {
-                // UI update logic here
-                Intent intent = new Intent(SplashScreenActivity.this, FirebaseUIActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        executorService.shutdownNow();
-    }
 }

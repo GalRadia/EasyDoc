@@ -240,8 +240,10 @@ public class AppointmentsFragment extends Fragment {
 
         tpd.setOnTimeSetListener((view, hourOfDay, minute, second) -> {
             String min = minute > 9 ? "" + minute : "0" + minute;
+            Timepoint timepoint = new Timepoint(hourOfDay, minute);
+
             if ((hourOfDay > eHour) || (hourOfDay == eHour && minute > eMinute) ||
-                    (hourOfDay < sHour) || (hourOfDay == sHour && minute < sMinute)) {
+                    (hourOfDay < sHour) || (hourOfDay == sHour && minute < sMinute)||(tpd.isOutOfRange(timepoint))) {
                 // Clear the appointment time and date TextViews
                 appointmentTime.setText("");
                 appointmentDate.setText("");
@@ -271,7 +273,7 @@ public class AppointmentsFragment extends Fragment {
         dpd.setMaxDate(maxDate);
         Calendar calendar = Calendar.getInstance();
         List<Calendar> disabledDays = new ArrayList<>();
-        calendar.add(Calendar.DAY_OF_MONTH, 1); // Start from tomorrow
+
         int days = Integer.parseInt(doc.getMonthsInAdvance()) * 31;
         for (int i = 0; i < days; i++) {
             if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
@@ -280,7 +282,18 @@ public class AppointmentsFragment extends Fragment {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
         dpd.setDisabledDays(disabledDays.toArray(new Calendar[0]));
+
         dpd.setOnDateSetListener((view, year, monthOfYear, dayOfMonth) -> {
+            Calendar cal = Calendar.getInstance();
+            cal.set(year, monthOfYear, dayOfMonth);
+            if (disabledDays.contains(cal)) {
+                // Clear the appointment time and date TextViews
+                appointmentTime.setText("");
+                appointmentDate.setText("");
+                // Display a toast message indicating the time is not available
+                Toast.makeText(getContext(), "Date is not available", Toast.LENGTH_SHORT).show();
+                return;
+            }
             String month = monthOfYear < 9 ? "0" + (monthOfYear + 1) : "" + (monthOfYear + 1);
             String day = dayOfMonth < 10 ? "0" + dayOfMonth : "" + dayOfMonth;
             appointmentDate.setText(day + "/" + (month) + "/" + year);
@@ -310,7 +323,9 @@ public class AppointmentsFragment extends Fragment {
                 Toast.makeText(getContext(), "Added to waiting list", Toast.LENGTH_SHORT).show();
             }
         }, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
         datePickerDialog.setTitle("Select a date to add to waiting list");
+
         datePickerDialog.show();
 
 

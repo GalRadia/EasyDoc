@@ -33,6 +33,22 @@ public class Helper {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         return sdf.format(calendar.getTime());
     }
+    //Validate the phone number
+    public static boolean checkPhoneNumber(String string) {
+        if (string.length()< 10) {
+            return false;
+        }
+        int i=0;
+        if (string.charAt(0) == '+') {
+            i++;
+        }
+        for (; i < string.length(); i++) {
+            if (!Character.isDigit(string.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     public static boolean isAppointmentPassed(String date, String time) {

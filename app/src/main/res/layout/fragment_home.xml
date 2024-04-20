@@ -37,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/nav"
+            android:backgroundTint="@color/amber_700"
             app:icon="@drawable/google_map_ic" />
 
         <com.google.android.material.button.MaterialButton
@@ -45,12 +46,14 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/default_margin"
             android:text="@string/call"
+            android:backgroundTint="@color/amber_700"
             app:icon="@drawable/ic_phone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/signOutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/red_500"
             android:text="@string/sign_out" />
 
     </LinearLayout>
