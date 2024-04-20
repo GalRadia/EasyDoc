@@ -68,43 +68,17 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
-    // implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
     implementation(libs.materialdatetimepicker)
     implementation(libs.firebase.ui.auth)
     implementation(libs.firebase.messaging)
-    //  implementation(libs.google.services)
     implementation(libs.play.services.auth)
     implementation(libs.play.services.maps)
     implementation(libs.glide)
-
-
-
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
-
-    // Add the dependencies for any other desired Firebase products
-    // https://firebase.google.com/docs/android/setup#available-libraries
-
-
-    //implementation(libs.firebase.UI.auth)
-
-    // Required only if Facebook login support is required
-    // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
-//    implementation 'com.facebook.android:facebook-android-sdk:8.x'
-
-    // implementation(libs.firebase.database)
-    //  implementation(libs.firebase.UI.auth)
-    //    implementation("com.wdullaer:materialdatetimepicker:4.2.3")
-    // implementation(libs.gms.play.services.auth)
-    //  implementation(libs.firebase.messaging)
-    //implementation(libs.gms.play.services.auth)
     implementation(libs.lottie)
-    //implementation(libs.navigation)
-    //implementation(libs.navigation.v530)
+
 
 
 }
