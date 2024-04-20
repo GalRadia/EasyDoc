@@ -30,8 +30,6 @@ EasyDoc is an appointment booking application designed to facilitate the schedul
 - **Add more doctors**
 
 ## Setup
-
-## Setup
 1. **Clone the repository**:
    ```bash
    git clone https://example.com/EasyDoc.git
