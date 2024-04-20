@@ -14,6 +14,20 @@ EasyDoc is an appointment booking application designed to facilitate the schedul
 - **Phone Calling**: Direct calling feature enables users to call the doctor's office directly from the app interface.
 - **Disable Fully Booked Days**: Days that are fully booked are automatically disabled, preventing further bookings and improving user experience.
 - **Collision detection**: The app includes a time collision detection feature to prevent the scheduling of overlapping appointments, ensuring efficient time management.
+## Tech Stack
+- **Java language**
+- **Firebase Authentication + UI**
+- **RealTime Database from Firebase**
+- **3rd party DatePicker and TimePicker dialogs from `wdullaer` :https://github.com/wdullaer/MaterialDateTimePicker**
+- **Using ViewModel and LiveData management**
+- **Google maps API**
+- **Repository and Singletone design pattern**
+- **Bottom Navigation View**
+## Future improvements
+- **Add notifications for adding or changing appointments**
+- **Fixing issues from the 3rd party Date and Time pickers integrate better with my application**
+- **Changing address for the medical center**
+- **Add more doctors**
 
 ## Setup
 
