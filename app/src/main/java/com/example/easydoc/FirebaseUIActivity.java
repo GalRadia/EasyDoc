@@ -59,7 +59,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityFirebaseUiactivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        //addDoctorOffice(); // Uncomment this line to add a doctor office to the database
+        addDoctorOffice(); // Uncomment this line to add a doctor office to the database
         mAuth = FirebaseAuth.getInstance(); // Initialize Firebase Auth
         setupUI(); // Initialize UI components
         initUI(); // Initialize UI state
@@ -68,7 +68,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
 
     private static void addDoctorOffice() {
         DoctorOffice doctorOffice = new DoctorOffice("EasyDoc, Tel-Aviv,70300", "EasyDoc", "Dr Rick Sanchez",
-                "0547773686", "HealthOffice@mail.com", "8:30", "9:30", "30", "1");
+                "0547773686", "HealthOffice@mail.com", "08:00", "20:00", "30", "1");
         DatabaseReference officeReference = FirebaseDatabase.getInstance().getReference("DoctorOffice");
         officeReference.setValue(doctorOffice);
     }
@@ -137,6 +137,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
             Toast.makeText(this, "Sign-in cancelled by user.", Toast.LENGTH_SHORT).show();
         }
     }
+
     //Update the UI with the user details
     private void updateUIWithUserDetails(FirebaseUser user) {
         emailEdit.setText(user.getEmail());
@@ -154,6 +155,7 @@ public class FirebaseUIActivity extends AppCompatActivity {
             }
         });
     }
+
     //Reset the UI after sign out
     private void resetUIPostSignOut() {
         emailEdit.setText("");
@@ -193,12 +195,14 @@ public class FirebaseUIActivity extends AppCompatActivity {
         }
         return true;
     }
+
     //Save the user information if the inputs are valid
     private void attemptSaveUserInformation() {
         if (validateInputs()) {
             saveUserInformation();
         }
     }
+
     //Save the user data to the database
     private void saveUserInformation() {
         FirebaseUser user = mAuth.getCurrentUser();
